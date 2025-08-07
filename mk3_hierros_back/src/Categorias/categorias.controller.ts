@@ -19,8 +19,9 @@ export class CategoriaController {
   }
 
   @Delete()
-  deleteCategory(id: number): void {
+  deleteCategory(id: number): string {
     this.categoriaService.deleteCategory(id);
+    return 'Categoria eliminada con exito.';
   }
 
 
