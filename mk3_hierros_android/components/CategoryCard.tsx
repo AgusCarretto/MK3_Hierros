@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Category } from '../types/category';
-import { COLORS } from '../assets/colors/colors';
+import { COLORS } from '../assets/constants/colors';
 
 interface CategoryCardProps {
   category: Category;

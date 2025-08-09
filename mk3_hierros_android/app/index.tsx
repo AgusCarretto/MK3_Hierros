@@ -1,24 +1,26 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
-import CategoryList from '../components/CategoryList';
-import { categoryService } from '../services/api';
-import { Category } from '../types/category';
-import { COLORS } from '../assets/colors/colors';
+import WorkList from '../components/WorkList';
+import { workService } from '../services/api';
+import { Work } from '../types/work';
+import { COLORS } from '../assets/constants/colors';
 
 export default function HomeScreen() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadCategories();
+    loadWorks();
   }, []);
 
-  const loadCategories = async () => {
+  const loadWorks = async () => {
     try {
-      const data = await categoryService.getCategories();
-      setCategories(data);
+      const worksData = await workService.getWorks();
+      console.log(worksData)
+      setWorks(worksData);
+      console.log('✅ Trabajos cargados:', worksData.length);
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error('❌ Error loading works:', error);
     } finally {
       setLoading(false);
     }
@@ -27,7 +29,7 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando categorías...</Text>
+        <Text style={styles.loadingText}>Cargando trabajos...</Text>
       </View>
     );
   }
@@ -38,10 +40,12 @@ export default function HomeScreen() {
 
       <View style={styles.header}>
         <Text style={styles.title}>MK3 Hierros</Text>
-        <Text style={styles.subtitle}>Categorías de productos</Text>
+        <Text style={styles.subtitle}>
+          {works.length} trabajo{works.length !== 1 ? 's' : ''} en sistema
+        </Text>
       </View>
 
-      <CategoryList categories={categories} />
+      <WorkList works={works} />
     </View>
   );
 }
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
   },
   header: {
-    paddingTop: 60, // Para el StatusBar
+    paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
     backgroundColor: COLORS.BACKGROUND_SECONDARY,
