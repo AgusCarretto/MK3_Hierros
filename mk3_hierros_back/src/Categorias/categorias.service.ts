@@ -7,7 +7,7 @@ import { Category } from 'src/Entity/Category';
 @Injectable()
 export class CategoriaService {
   getAll(): Category[] {
-    return [{'id': 1 ,'name': 'Category 1'}]; //return all pelotudito
+    return [{'id': 1 ,'name': 'Rejas'},{'id': 1 ,'name': 'Portones'},{'id': 1 ,'name': 'Puertas'}]; //return all pelotudito
   }
 
   createCategory(category: Category): Category {

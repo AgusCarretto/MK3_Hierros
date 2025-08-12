@@ -1,18 +1,62 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+export enum Priority{
+    LOW = 'Baja',
+    MEDIUM = 'Media',
+    HIGH = 'Alta',
+    CRITIC = 'Crítica'
+    }
 
-@Entity()
+export enum Status{
+    PROGRESS = 'En curso',
+    CANCELED = 'Cancelado',
+    PRICE = 'Cotización',
+    PENDING = 'Pendiente Aprobación',
+    FINISH = 'Finalizado',
+    BUYING = 'Compra Materiales',
+    }
+@Entity('works')
 export class Work {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string;
+  @Column({ length: 255 })
+  title: string;
 
-  @Column()
+  @Column('text')
   description: string;
 
-  @Column()
-  dateStart: Date;
+  @Column({ nullable: true })
+  image: string;
 
+  @Column({ length: 100 })
+  measures: string;
 
+  @Column({ length: 100 })
+  category: string;
+
+  @Column({
+    type: 'enum',
+    enum: Priority,
+    default: Priority.MEDIUM
+  })
+  priority: Priority;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.PENDING
+  })
+  status: Status;
+
+  @Column({ type: 'date', nullable: true })
+  endDate: Date;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  price: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  finalPrice: number;
 }

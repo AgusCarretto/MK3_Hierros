@@ -11,16 +11,16 @@ import { TrabajoService } from './Trabajos/trabajo.service';
 
 @Module({
   imports: [
-  TypeOrmModule.forRoot({
-      type: 'mysql', //Esto en realidad va a ser postgres
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'test',
-      entities: [],
-      synchronize: true,
-    }),
+  // TypeOrmModule.forRoot({
+  //     type: 'mysql', //Esto en realidad va a ser postgres
+  //     host: 'localhost',
+  //     port: 3306,
+  //     username: 'root',
+  //     password: 'root',
+  //     database: 'test',
+  //     entities: [],
+  //     synchronize: true,
+  //   }),
   ],
   controllers: [AppController, CategoriaController, TrabajoController],
   providers: [AppService, CategoriaService, TrabajoService],
