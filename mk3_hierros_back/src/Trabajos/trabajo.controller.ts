@@ -1,36 +1,58 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { TrabajoService } from './trabajo.service';
-import { Work } from 'src/Entity/Work';
+import { Priority, Status, Work } from 'src/Entity/Work.entity';
 
 @Controller('trabajo')
 export class TrabajoController {
   constructor(private readonly trabajoService: TrabajoService) {}
 
-
-  
   @Get()
-  getAll(): Work[] {
-    return this.trabajoService.getAll();
+  async getAll(): Promise<Work[]> {
+    return await this.trabajoService.getAll();
+  }
+
+  @Get(':id')
+  async getById(@Param('id') id: number): Promise<Work> {
+    return await this.trabajoService.getById(id);
+  }
+
+  @Get('byCategory/:categoryId')
+  async getByCategory(
+    @Param('categoryId') categoryId: number): Promise<Work[]> {
+    return await this.trabajoService.getByCategory(categoryId);
+  }
+
+  @Get('byPriority/:priority')
+  async getByPriority(@Param('priority') priority: Priority): Promise<Work[]> {
+    return await this.trabajoService.getByPriority(priority);
+  }
+
+  @Get('byStatus/:status')
+  async getByStatus(@Param('status') status: Status): Promise<Work[]> {
+    return await this.trabajoService.getByStatus(status);
   }
 
   @Post()
-  createWork(work: Work): Work {
-    return this.trabajoService.createWork(work);
+  async createWork(@Body() work: Work): Promise<Work> {
+    return await this.trabajoService.createWork(work);
   }
 
-  @Delete()
-  deleteWork(id: number): string {
-    this.trabajoService.deleteWork(id);
+  @Delete(':id')
+  async deleteWork(@Param('id') id: number): Promise<string> {
+    await this.trabajoService.deleteWork(id);
     return 'Trabajo eliminado con exito.';
   }
 
-
   @Put()
-  updateWork(work: Work): Work {
-    return this.trabajoService.updateWork(work);
+  async updateWork(@Body() work: Work): Promise<Work> {
+    return await this.trabajoService.updateWork(work);
   }
-
-
 }
-
-

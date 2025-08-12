@@ -1,48 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { Category } from 'src/Entity/Category';
-
-
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Category } from 'src/Entity/Category.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriaService {
-  getAll(): Category[] {
-    return [{'id': 1 ,'name': 'Rejas'},{'id': 1 ,'name': 'Portones'},{'id': 1 ,'name': 'Puertas'}]; //return all pelotudito
+  constructor(
+    @InjectRepository(Category)
+    private readonly repo_cat: Repository<Category>,
+  ) {}
+
+  async getAll(): Promise<Category[]> {
+    return await this.repo_cat.find();
   }
 
-  createCategory(category: Category): Category {
-    
-    const newCategory = new Category();
-    newCategory.name = category.name;
-    
-    //aca guardar la nueva categoria en la base de datos calculo yo
-
-    return category; 
+  async getById(id: number): Promise<Category> {
+    const category = await this.repo_cat.findOneBy({ id });
+    if (category !== null) {
+      return category;
+    } else {
+      throw new Error(`La categoria con id:${id} no se encuentra.`);
+    }
   }
 
-
-  deleteCategory(id: number): void {
-   
-    //encontrar por id la categoria y eliminarla
-      
+  async getByName(name: string): Promise<Category[]> {
+    return await this.repo_cat.find({ where: { name } });
   }
-  
 
-  updateCategory(category: Category): Category {
+  async createCategory(category: Category): Promise<Category> {
+    const newCategory = this.repo_cat.create(category);
+    await this.repo_cat.save(newCategory);
+    return newCategory;
+  }
 
-    //logica para encontrar la categoria por id y actualizarla
-
+  async deleteCategory(id: number): Promise<void> {
+    const category = await this.repo_cat.findOne({ where: { id } });
+    if (category) {
+      await this.repo_cat.remove(category);
+    } else {
+      throw new Error(`La categoria con id:${id} no se encuentra.`);
+    }
+  }
+  async updateCategory(category: Category): Promise<Category> {
+    await this.repo_cat.save(category);
     return category;
-
   }
-
-
-
-
-
-
-
 
   
 }
-

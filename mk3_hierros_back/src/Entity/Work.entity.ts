@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { Category } from './Category.entity';
+
 export enum Priority{
     LOW = 'Baja',
     MEDIUM = 'Media',
@@ -14,7 +16,8 @@ export enum Status{
     FINISH = 'Finalizado',
     BUYING = 'Compra Materiales',
     }
-@Entity('works')
+
+@Entity({name: 'works'})
 export class Work {
   @PrimaryGeneratedColumn()
   id: number;
@@ -31,8 +34,8 @@ export class Work {
   @Column({ length: 100 })
   measures: string;
 
-  @Column({ length: 100 })
-  category: string;
+  @ManyToOne(() => Category)
+  category: Category;
 
   @Column({
     type: 'enum',
