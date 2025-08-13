@@ -11,5 +11,23 @@ export const workService = {
   async getWorks(): Promise<Work[]> {
     const response = await fetch(`${API_URL}/trabajo`);
     return response.json();
-  }
+  },
+
+  async getWorkById(id:string): Promise<Work> {
+      const response = await fetch(`${API_URL}/trabajo/${id}`);
+      return response.json();
+  },
+
+  async updateWorkById(id:string, workData: Work): Promise<Work> {
+      const response = await fetch(`${API_URL}/trabajo/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              // 'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(workData),
+          });
+      const updatedWork: Work = await response.json();
+      return updatedWork;
+      }
 };

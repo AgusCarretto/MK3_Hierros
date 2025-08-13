@@ -1,17 +1,30 @@
+import React, { useState } from 'react';
 import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Work, Status } from '../types/work';
 import { COLORS } from '../assets/constants/colors';
 import WorkCard from './WorkCard';
+import WorkDetailScreen from './WorkDetailScreen';
 
 interface WorkListProps {
   works: Work[];
   loading?: boolean;
+  onWorksUpdate?: () => void; // Cambiar a función sin parámetros
 }
 
-export default function WorkList({ works, loading = false }: WorkListProps) {
+export default function WorkList({ works, loading = false, onWorksUpdate }: WorkListProps) {
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
+
   const handleWorkPress = (work: Work) => {
-    console.log('Trabajo seleccionado:', work.title);
-    // Aquí podrías navegar a una pantalla de detalle
+    setSelectedWork(work);
+  };
+
+  const handleWorkUpdated = () => {
+    // Solo llamar la función de recarga del padre
+    onWorksUpdate?.();
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedWork(null);
   };
 
   if (loading) {
@@ -74,6 +87,15 @@ export default function WorkList({ works, loading = false }: WorkListProps) {
           </View>
         )}
       />
+
+      {/* Modal de detalle */}
+      {selectedWork && (
+        <WorkDetailScreen
+          initialWork={selectedWork}
+          onWorkUpdated={handleWorkUpdated}
+          onClose={handleCloseDetail}
+        />
+      )}
     </View>
   );
 }
