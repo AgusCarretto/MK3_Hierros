@@ -16,13 +16,21 @@ export default function HomeScreen() {
   const loadWorks = async () => {
     try {
       const worksData = await workService.getWorks();
-      console.log(worksData)
       setWorks(worksData);
-      console.log('✅ Trabajos cargados:', worksData.length);
     } catch (error) {
-      console.error('❌ Error loading works:', error);
+      return `error cargando trabajos,  ${error}`;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Función para recargar trabajos después de una actualización
+  const handleWorkUpdated = async () => {
+    try {
+      const worksData = await workService.getWorks();
+      setWorks(worksData);
+    } catch (error) {
+      return `error cargando trabajos,  ${error}`;
     }
   };
 
@@ -45,7 +53,10 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      <WorkList works={works} />
+      <WorkList
+        works={works}
+        onWorksUpdate={handleWorkUpdated}
+      />
     </View>
   );
 }
