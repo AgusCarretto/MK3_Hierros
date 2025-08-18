@@ -1,0 +1,17 @@
+
+.home-header {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: var(--BACKGROUND_PRIMARY);
+  color: var(--TEXT_PRIMARY);
+}
+
+.home-header h1 {
+   color: var(--TEXT_TERTIARY);
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.home-header p {
+  font-size: 1.25rem;
+}

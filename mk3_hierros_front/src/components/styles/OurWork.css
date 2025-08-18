@@ -1,0 +1,25 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto; /* Centra el contenido */
+  padding: 2rem;
+  text-align: center;
+}
+
+.container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Puedes añadir media queries para mejorar la visualización en dispositivos móviles */
+@media (max-width: 768px) {
+  .works-grid {
+    grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+  }
+}
