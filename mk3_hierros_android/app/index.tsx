@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
 import WorkList from '../components/WorkList';
+import CreateNewWork from '../components/CreateNewWork';
+import StatusSelector from '../components/StatusSelector';
+import FinishWork from '../components/FinishWork';
 import { workService } from '../services/api';
 import { Work } from '../types/work';
 import { COLORS } from '../assets/constants/colors';
+import {sortWorksByStatus} from '../assets/utils/sortWorksByStatus'
 
 export default function HomeScreen() {
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateWork, setShowCreateWork] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
+  const [showStatusSelector, setShowStatusSelector] = useState(false);
+  const [showFinishWork, setShowFinishWork] = useState(false);
+  const [workToFinish, setWorkToFinish] = useState<Work | null>(null);
 
   useEffect(() => {
     loadWorks();
@@ -16,7 +25,9 @@ export default function HomeScreen() {
   const loadWorks = async () => {
     try {
       const worksData = await workService.getWorks();
-      setWorks(worksData);
+      //Activos primero (por prioridad), luego finalizados/cancelados
+      const sortedWorks = sortWorksByStatus(worksData);
+      setWorks(sortedWorks);
     } catch (error) {
       return `error cargando trabajos,  ${error}`;
     } finally {
@@ -28,9 +39,83 @@ export default function HomeScreen() {
   const handleWorkUpdated = async () => {
     try {
       const worksData = await workService.getWorks();
-      setWorks(worksData);
+      const sortedWorks = sortWorksByStatus(worksData);
+      setWorks(sortedWorks);
     } catch (error) {
       return `error cargando trabajos,  ${error}`;
+    }
+  };
+
+  // Función para manejar la acción de agregar nuevo trabajo
+  const handleAddWork = () => {
+    setShowCreateWork(true);
+  };
+
+  // Función para cerrar el modal de crear trabajo
+  const handleCloseCreateWork = () => {
+    setShowCreateWork(false);
+  };
+
+  // Función para manejar cuando se crea un nuevo trabajo
+  const handleWorkCreated = async () => {
+    try {
+      const worksData = await workService.getWorks();
+      const sortedWorks = sortWorksByStatus(worksData);
+      setWorks(sortedWorks);
+    } catch (error) {
+      console.error('Error reloading works:', error);
+    }
+  };
+
+  // Función para abrir el selector de estado
+  const handleStatusPress = (work: Work) => {
+    setSelectedWork(work);
+    setShowStatusSelector(true);
+  };
+
+  // Función para cerrar el selector de estado
+  const handleCloseStatusSelector = () => {
+    setShowStatusSelector(false);
+    setSelectedWork(null);
+  };
+
+  // Función para manejar cuando se actualiza el estado
+  const handleStatusUpdated = async () => {
+    try {
+      const worksData = await workService.getWorks();
+      const sortedWorks = sortWorksByStatus(worksData);
+      setWorks(sortedWorks);
+    } catch (error) {
+      console.error('Error reloading works after status update:', error);
+    }
+  };
+
+  // Función para manejar cuando se solicita finalizar trabajo
+  const handleFinishWorkRequested = (work: Work) => {
+    setWorkToFinish(work);
+    setShowFinishWork(true);
+    // Cerrar el selector de estado
+    setShowStatusSelector(false);
+    setSelectedWork(null);
+  };
+
+  // Función para cerrar el modal de finalizar trabajo
+  const handleCloseFinishWork = () => {
+    setShowFinishWork(false);
+    setWorkToFinish(null);
+  };
+
+  // Función para manejar cuando se finaliza un trabajo
+  const handleWorkFinished = async () => {
+    try {
+      const worksData = await workService.getWorks();
+      const sortedWorks = sortWorksByStatus(worksData);
+      setWorks(sortedWorks);
+      // Cerrar el modal
+      setShowFinishWork(false);
+      setWorkToFinish(null);
+    } catch (error) {
+      console.error('Error reloading works after finish:', error);
     }
   };
 
@@ -47,16 +132,56 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.BACKGROUND_PRIMARY} />
 
       <View style={styles.header}>
-        <Text style={styles.title}>MK3 Hierros</Text>
-        <Text style={styles.subtitle}>
-          {works.length} trabajo{works.length !== 1 ? 's' : ''} en sistema
-        </Text>
+        <View style={styles.headerContent}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>MK3 Hierros</Text>
+            <Text style={styles.subtitle}>
+              {works.length} trabajo{works.length !== 1 ? 's' : ''} en sistema
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddWork}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <WorkList
         works={works}
         onWorksUpdate={handleWorkUpdated}
+        onStatusPress={handleStatusPress}
       />
+
+      {showCreateWork && (
+        <CreateNewWork
+          onWorkCreated={handleWorkCreated}
+          onClose={handleCloseCreateWork}
+        />
+      )}
+
+      {showStatusSelector && selectedWork && (
+        <StatusSelector
+          work={selectedWork}
+          visible={showStatusSelector}
+          onClose={handleCloseStatusSelector}
+          onStatusUpdated={handleStatusUpdated}
+          onFinishWorkRequested={handleFinishWorkRequested}
+        />
+      )}
+
+      {/* Renderizar el componente FinishWork cuando sea necesario */}
+      {showFinishWork && workToFinish && (
+        <FinishWork
+          work={workToFinish}
+          visible={showFinishWork}
+          onClose={handleCloseFinishWork}
+          onWorkFinished={handleWorkFinished}
+        />
+      )}
     </View>
   );
 }
@@ -84,6 +209,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER_COLOR,
   },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  titleContainer: {
+    flex: 1,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -93,5 +226,27 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: COLORS.TEXT_SECONDARY,
+  },
+  addButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: COLORS.ACCENT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  addButtonText: {
+    fontSize: 28,
+    color: COLORS.BACKGROUND_PRIMARY,
+    fontWeight: '300',
+    lineHeight: 28,
   },
 });

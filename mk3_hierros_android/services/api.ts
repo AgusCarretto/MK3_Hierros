@@ -29,5 +29,18 @@ export const workService = {
           });
       const updatedWork: Work = await response.json();
       return updatedWork;
-      }
+  },
+
+  async createWork(workData: Work): Promise<Work> {
+    const response = await fetch(`${API_URL}/trabajo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(workData),
+      });
+    const newWork: Work = await response.json();
+    return newWork;
+  }
 };

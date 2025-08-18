@@ -5,9 +5,10 @@ import { COLORS } from '../assets/constants/colors';
 interface WorkCardProps {
   work: Work;
   onPress?: () => void;
+  onStatusPress?: (work: Work) => void;
 }
 
-export default function WorkCard({ work, onPress }: WorkCardProps) {
+export default function WorkCard({ work, onPress, onStatusPress }: WorkCardProps) {
    const getPriorityColor = (priority: string) => {
       switch (priority) {
         case 'Crítica':
@@ -58,9 +59,14 @@ export default function WorkCard({ work, onPress }: WorkCardProps) {
     });
   };
 
+  const handleStatusPress = (event: any) => {
+    event.stopPropagation(); // Evita que se dispare el onPress del card
+    onStatusPress?.(work);
+  };
+
   return (
-    <TouchableOpacity 
-      style={styles.card} 
+    <TouchableOpacity
+      style={styles.card}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -71,9 +77,16 @@ export default function WorkCard({ work, onPress }: WorkCardProps) {
           <Text style={styles.category}>{work.category}</Text>
         </View>
         <View style={styles.statusContainer}>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(work.status) }]}>
-            <Text style={styles.statusText}>{work.status}</Text>
-          </View>
+          <TouchableOpacity
+            style={[styles.statusBadge, { backgroundColor: getStatusColor(work.status) }]}
+            onPress={handleStatusPress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.statusText} numberOfLines={1}>
+              {work.status}
+            </Text>
+            <Text style={styles.statusArrow}>▼</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -82,7 +95,7 @@ export default function WorkCard({ work, onPress }: WorkCardProps) {
         <Text style={styles.description} numberOfLines={2}>
           {work.description}
         </Text>
-        
+
         <View style={styles.measuresContainer}>
           <Text style={styles.measuresLabel}>Medidas:</Text>
           <Text style={styles.measures}>{work.measures}</Text>
@@ -100,13 +113,13 @@ export default function WorkCard({ work, onPress }: WorkCardProps) {
             <Text style={styles.originalPrice}>{formatPrice(work.price)}</Text>
           )}
         </View>
-        
+
         <View style={styles.metaContainer}>
           <View style={styles.priorityContainer}>
             <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(work.priority) }]} />
             <Text style={styles.priorityText}>{work.priority}</Text>
           </View>
-          
+
           {work.endDate && (
             <Text style={styles.endDate}>
               Entrega: {formatDate(work.endDate)}
@@ -163,16 +176,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    minWidth: 90,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    minWidth: 110,
+    maxWidth: 150,
   },
   statusText: {
     fontSize: 11,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    flex: 1,
+    marginRight: 4,
+  },
+  statusArrow: {
+    fontSize: 8,
+    color: '#FFFFFF',
+    opacity: 0.8,
   },
   cardContent: {
     paddingHorizontal: 16,

@@ -8,10 +8,16 @@ import WorkDetailScreen from './WorkDetailScreen';
 interface WorkListProps {
   works: Work[];
   loading?: boolean;
-  onWorksUpdate?: () => void; // Cambiar a función sin parámetros
+  onWorksUpdate?: () => void;
+  onStatusPress?: (work: Work) => void;
 }
 
-export default function WorkList({ works, loading = false, onWorksUpdate }: WorkListProps) {
+export default function WorkList({
+  works,
+  loading = false,
+  onWorksUpdate,
+  onStatusPress
+}: WorkListProps) {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
 
   const handleWorkPress = (work: Work) => {
@@ -25,6 +31,10 @@ export default function WorkList({ works, loading = false, onWorksUpdate }: Work
 
   const handleCloseDetail = () => {
     setSelectedWork(null);
+  };
+
+  const handleStatusPress = (work: Work) => {
+    onStatusPress?.(work);
   };
 
   if (loading) {
@@ -67,6 +77,7 @@ export default function WorkList({ works, loading = false, onWorksUpdate }: Work
           <WorkCard
             work={item}
             onPress={() => handleWorkPress(item)}
+            onStatusPress={handleStatusPress}
           />
         )}
         showsVerticalScrollIndicator={false}
