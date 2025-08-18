@@ -1,8 +1,5 @@
-import Status from '../assets/constants/status';
-import Priority from '../assets/constants/priority';
-
 export interface Work {
-  id: number;
+  id: string;
   title: string;
   description: string;
   image: string;
