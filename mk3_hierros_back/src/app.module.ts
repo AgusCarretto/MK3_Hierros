@@ -15,18 +15,12 @@ import { Category } from './Entity/Category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Category]),
-    TypeOrmModule.forFeature([Work]),
+    TypeOrmModule.forFeature([Category, Work]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const dbPassword = configService.get<string>('DB_PASSWORD');
-
-        console.log('🔍 Tipo de DB_PASSWORD:', typeof dbPassword);
-        console.log('🔍 Valor de DB_PASSWORD:', JSON.stringify(dbPassword));
-
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
