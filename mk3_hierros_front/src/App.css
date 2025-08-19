@@ -11,3 +11,12 @@
   --WARNING: '#FF9800';
   --ERROR: '#F44336';
 }
+
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #121212;
+  color: #FFFFFF;
+ 
+}

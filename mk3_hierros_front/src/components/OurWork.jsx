@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import './OurWork.css'; // Crea este archivo para los estilos de la página
+import './styles/OurWork.css';
 // Importa el componente Card que vamos a crear
 import WorkCard from './WorkCard'; 
 
@@ -12,7 +12,7 @@ const OurWork = () => {
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const response = await fetch('http://localhost:3000/works'); // Asegúrate de que esta URL sea la correcta de tu backend
+        const response = await fetch('http://localhost:3000/trabajo'); // Asegúrate de que esta URL sea la correcta de tu backend
         if (!response.ok) {
           throw new Error('Error al obtener los trabajos.');
         }
