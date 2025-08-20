@@ -1,19 +1,31 @@
 import React from 'react';
-import Navbar from './Navbar'; 
 import './styles/Home.css'; 
+
 
 const Home = () => {
   return (
-    <div>
-      <Navbar /> 
-      <header className="home-header">
-        <h1>Mk3 Hierros</h1>
-        <p>Tu socio en estructuras de metal.</p>
-      </header>
-
-
-      {/* Aquí podrías agregar más contenido para la página de inicio */}
-    </div>
+    <main className="home-content">
+      <section className="home-part-left">
+        <h2>Sobre Nosotros</h2>
+        <p>
+          Somos especialistas en trabajos de herrería a medida, ofreciendo soluciones creativas
+          y funcionales para cada proyecto. Desde estructuras metálicas hasta detalles decorativos,
+          nuestro compromiso es con la calidad y la satisfacción del cliente.
+        </p>
+        <img src="https://placehold.co/400x300/2c3e50/ecf0f1?text=Nuestros+Valores" alt="Nuestros Valores" />
+      </section>
+      <section className="home-part-right">
+        <h2>Nuestros Servicios</h2>
+        <ul>
+          <li>Estructuras metálicas</li>
+          <li>Portones y rejas</li>
+          <li>Barandas y escaleras</li>
+          <li>Muebles de diseño industrial</li>
+          <li>Trabajos a medida</li>
+        </ul>
+        <img src="https://placehold.co/400x300/2c3e50/ecf0f1?text=Servicios" alt="Servicios" />
+      </section>
+    </main>
   );
 };
 

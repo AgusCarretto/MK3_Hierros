@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './Navbar';
 import './styles/OurWork.css';
 // Importa el componente Card que vamos a crear
 import WorkCard from './WorkCard'; 
@@ -31,7 +30,7 @@ const OurWork = () => {
   if (loading) {
     return (
       <div>
-        <Navbar />
+       
         <div className="container">
           <h2>Cargando trabajos...</h2>
         </div>
@@ -42,7 +41,7 @@ const OurWork = () => {
   if (error) {
     return (
       <div>
-        <Navbar />
+       
         <div className="container">
           <h2>Error: {error}</h2>
         </div>
@@ -52,7 +51,7 @@ const OurWork = () => {
 
   return (
     <div>
-      <Navbar />
+     
       <div className="container">
         <h1>Nuestros Trabajos</h1>
         <div className="works-grid">

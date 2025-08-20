@@ -1,5 +1,4 @@
 
-
 /* Estilos para la sección principal (hero) */
 .hero-section {
   position: relative;
@@ -106,7 +105,6 @@
   padding: 0;
 }
 
-/* Estilos para los enlaces y la animación de subrayado */
 .hero-nav-links a {
   color: #fff;
   text-decoration: none;
@@ -115,57 +113,9 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: color 0.3s ease;
-  position: relative; /* Necesario para posicionar el pseudo-elemento */
 }
 
-/* Pseudo-elemento para el subrayado animado */
-.hero-nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -5px; /* Posición debajo del texto */
-  left: 50%;
-  width: 0; /* Empieza con ancho cero */
-  height: 2px;
-  background-color: #2ecc71;
-  transition: width 0.3s ease, left 0.3s ease;
-}
-
-.hero-nav-links a:hover::after {
-  width: 100%; /* El ancho aumenta a 100% al pasar el mouse */
-  left: 0; /* Se mueve a la izquierda para que crezca desde el centro */
-}
-
-/* Media query para móviles */
-@media (max-width: 768px) {
-  .hero-nav-links {
-    position: relative;
-    top: auto;
-    right: auto;
-    justify-content: center;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0 1rem;
-  }
-
-  .hero-section {
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: 2rem;
-  }
-  
-  .hero-content {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin-top: 1rem; /* Espacio entre el nav y la imagen del título */
-  }
-
-  .hero-title-img {
-    max-width: 80%;
-  }
-
-  .home-content {
-    flex-direction: column;
-  }
+.hero-nav-links a:hover {
+  color: #2ecc71; /* Color al pasar el mouse */
+  text-decoration: none;
 }
