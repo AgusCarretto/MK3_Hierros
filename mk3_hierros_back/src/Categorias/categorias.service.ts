@@ -7,15 +7,15 @@ import { Repository } from 'typeorm';
 export class CategoriaService {
   constructor(
     @InjectRepository(Category)
-    private readonly repo_cat: Repository<Category>,
+    private readonly repoCat: Repository<Category>,
   ) {}
 
   async getAll(): Promise<Category[]> {
-    return await this.repo_cat.find();
+    return await this.repoCat.find();
   }
 
   async getById(id: number): Promise<Category> {
-    const category = await this.repo_cat.findOneBy({ id });
+    const category = await this.repoCat.findOneBy({ id });
     if (category !== null) {
       return category;
     } else {
@@ -24,25 +24,25 @@ export class CategoriaService {
   }
 
   async getByName(name: string): Promise<Category[]> {
-    return await this.repo_cat.find({ where: { name } });
+    return await this.repoCat.find({ where: { name } });
   }
 
   async createCategory(category: Category): Promise<Category> {
-    const newCategory = this.repo_cat.create(category);
-    await this.repo_cat.save(newCategory);
+    const newCategory = this.repoCat.create(category);
+    await this.repoCat.save(newCategory);
     return newCategory;
   }
 
   async deleteCategory(id: number): Promise<void> {
-    const category = await this.repo_cat.findOne({ where: { id } });
+    const category = await this.repoCat.findOne({ where: { id } });
     if (category) {
-      await this.repo_cat.remove(category);
+      await this.repoCat.remove(category);
     } else {
       throw new Error(`La categoria con id:${id} no se encuentra.`);
     }
   }
   async updateCategory(category: Category): Promise<Category> {
-    await this.repo_cat.save(category);
+    await this.repoCat.save(category);
     return category;
   }
 
