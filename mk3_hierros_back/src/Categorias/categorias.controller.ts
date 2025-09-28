@@ -12,7 +12,7 @@ export class CategoriaController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: number): Promise<Category> {
+  async getById(@Param('id') id: string): Promise<Category> {
     return await this.categoriaService.getById(id);
   }
 
@@ -27,12 +27,12 @@ export class CategoriaController {
   }
 
   @Delete(':id')
-  async deleteCategory(@Param('id') id: number): Promise<void> {
+  async deleteCategory(@Param('id') id: string): Promise<void> {
     await this.categoriaService.deleteCategory(id);
   }
 
   @Put()
-  async updateCategory(@Body() category: Category): Promise<Category> {
-    return await this.categoriaService.updateCategory(category);
+  async updateCategory(@Param('id') id: string, @Body() category: Category): Promise<Category> {
+    return await this.categoriaService.updateCategory(id, category);
   }
 }

@@ -14,8 +14,9 @@ export class CategoriaService {
     return await this.repoCat.find();
   }
 
-  async getById(id: number): Promise<Category> {
-    const category = await this.repoCat.findOneBy({ id });
+
+  async getById(id: string): Promise<Category> {
+    const category = await this.repo_cat.findOneBy({ id });
     if (category !== null) {
       return category;
     } else {
@@ -33,16 +34,19 @@ export class CategoriaService {
     return newCategory;
   }
 
-  async deleteCategory(id: number): Promise<void> {
-    const category = await this.repoCat.findOne({ where: { id } });
+
+  async deleteCategory(id: string): Promise<void> {
+    const category = await this.repo_cat.findOne({ where: { id } });
+
     if (category) {
       await this.repoCat.remove(category);
     } else {
       throw new Error(`La categoria con id:${id} no se encuentra.`);
     }
   }
-  async updateCategory(category: Category): Promise<Category> {
-    await this.repoCat.save(category);
+
+  async updateCategory(id: string, category: Category): Promise<Category> {
+    await this.repo_cat.save(category);
     return category;
   }
 

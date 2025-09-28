@@ -12,10 +12,12 @@ import { Priority, Status, Work } from './Entity/Work.entity';
 import { TrabajoModule } from './Trabajos/trabajo.module';
 import { DataSource } from 'typeorm';
 import { Category } from './Entity/Category.entity';
+import { WorkImage } from './Entity/WorkImage.entity';
+import { WorkImageService } from './Trabajos/workImage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Category, Work]),
+    TypeOrmModule.forFeature([Category, Work, WorkImage]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -37,7 +39,7 @@ import { Category } from './Entity/Category.entity';
     TrabajoModule,
   ],
   controllers: [AppController, CategoriaController, TrabajoController],
-  providers: [AppService, CategoriaService, TrabajoService],
+  providers: [AppService, CategoriaService, TrabajoService, WorkImageService],
 })
 export class AppModule implements OnModuleInit {
   //okay el agu explica esto, el OnModuleInit es un hook que se ejecuta cuando el modulo se inicializa del todo.

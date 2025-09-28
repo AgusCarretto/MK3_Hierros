@@ -1,12 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Category } from './Category.entity';
+import { WorkImage } from './WorkImage.entity';
 
 export enum Priority{
     LOW = 'Baja',
     MEDIUM = 'Media',
     HIGH = 'Alta',
     CRITIC = 'Crítica'
-    }
+}
 
 export enum Status{
     PROGRESS = 'En curso',
@@ -15,12 +16,12 @@ export enum Status{
     PENDING = 'Pendiente Aprobación',
     FINISH = 'Finalizado',
     BUYING = 'Compra Materiales',
-    }
+}
 
 @Entity({name: 'works'})
 export class Work {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column({ length: 255 })
   title: string;
@@ -28,14 +29,14 @@ export class Work {
   @Column('text')
   description: string;
 
-  @Column({ nullable: true })
-  image: string;
-
   @Column({ length: 100 })
   measures: string;
 
   @ManyToOne(() => Category)
   category: Category;
+
+  @OneToMany(() => WorkImage, image => image.work, { cascade: true })
+  images: WorkImage[];
 
   @Column({
     type: 'enum',

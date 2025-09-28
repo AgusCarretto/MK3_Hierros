@@ -42,5 +42,55 @@ export const workService = {
       });
     const newWork: Work = await response.json();
     return newWork;
-  }
+  },
+
+  async uploadWorkImages(workId: string, imageUris: string[]): Promise<void> {
+    const formData = new FormData();
+
+    imageUris.forEach((uri, index) => {
+      formData.append('images', {
+        uri: uri,
+        type: 'image/jpeg',
+        name: `image_${index}.jpg`,
+      } as any);
+    });
+
+    const response = await fetch(`${API_URL}/trabajo/${workId}/images`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error uploading images');
+    }
+  },
+
+  async getWorkImages(workId: string): Promise<WorkImage[]> {
+    const response = await fetch(`${API_URL}/trabajo/${workId}/images`);
+
+    if (!response.ok) {
+      throw new Error('Error fetching work images');
+    }
+
+    return response.json();
+  },
+
+  getWorkImageUrl(workId: string,imageId: string): string {
+    return `${API_URL}/trabajo/${workId}/images/${imageId}`;
+  },
+
+  async deleteWorkImage(imageId: string): Promise<void> {
+    const response = await fetch(`${API_URL}/trabajo/images/${imageId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error deleting image');
+    }
+  },
+
 };
+
