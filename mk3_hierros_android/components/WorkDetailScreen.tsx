@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   Image,
+
   FlatList,
   Dimensions,
 } from 'react-native';
@@ -21,6 +22,7 @@ import { workService } from '../services/api';
 interface WorkDetailScreenProps {
   workId?: string;
   initialWork?: Work;
+
   onWorkUpdated?: () => void;
   onClose: () => void;
 }
@@ -35,6 +37,7 @@ export default function WorkDetailScreen({
   onClose
 }: WorkDetailScreenProps) {
   const [work, setWork] = useState<Work | null>(initialWork || null);
+
   const [workImages, setWorkImages] = useState<WorkImage[]>([]);
   const [loading, setLoading] = useState(!initialWork);
   const [updating, setUpdating] = useState(false);
@@ -50,6 +53,7 @@ export default function WorkDetailScreen({
     finalPrice: 0,
   });
 
+
   const priorityOptions = ['Baja', 'Media', 'Alta', 'Crítica'];
   const statusOptions = ['Cotización', 'Pendiente Aprobación', 'Compra Materiales', 'En curso', 'Finalizado', 'Cancelado'];
 
@@ -58,6 +62,7 @@ export default function WorkDetailScreen({
       loadWorkDetails();
     } else if (initialWork) {
       initializeEditForm(initialWork);
+
       setWorkImages(initialWork.images || []);
     }
   }, [workId, initialWork]);
@@ -69,6 +74,7 @@ export default function WorkDetailScreen({
       setLoading(true);
       const workDetails = await workService.getWorkById(workId);
       setWork(workDetails);
+
       setWorkImages(workDetails.images || []);
       initializeEditForm(workDetails);
     } catch (error) {
@@ -89,6 +95,7 @@ export default function WorkDetailScreen({
       finalPrice: workData.finalPrice,
     });
   };
+
 
   // Función para seleccionar múltiples imágenes
   const selectImages = async () => {
@@ -210,6 +217,7 @@ export default function WorkDetailScreen({
       Alert.alert('Error', 'No se pudo actualizar el trabajo');
     } finally {
       setUpdating(false);
+
       setUploadingImages(false);
     }
   };
@@ -224,6 +232,7 @@ export default function WorkDetailScreen({
 
   const getStatusColor = (status: string) => {
     switch (status) {
+
       case 'Finalizado': return COLORS.SUCCESS;
       case 'En curso': return COLORS.ACCENT;
       case 'Pendiente Aprobación': return COLORS.WARNING;
@@ -236,6 +245,7 @@ export default function WorkDetailScreen({
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
+
       case 'Crítica': return COLORS.ERROR;
       case 'Alta': return COLORS.WARNING;
       case 'Media': return COLORS.ACCENT;
@@ -263,6 +273,7 @@ export default function WorkDetailScreen({
       minimumFractionDigits: 0,
     }).format(price);
   };
+
 // console.log('Error loading image:', item.id)
   // Componente para renderizar imagen de la galería
   const renderWorkImage = ({ item }: { item: WorkImage }) => (
@@ -270,7 +281,7 @@ export default function WorkDetailScreen({
       <Image
         source={{ uri: workService.getWorkImageUrl(work.id, item.id) }}
         style={styles.galleryImage}
-        onError={(error) => console.log(error)}
+        onError={() => console.log('Error loading image:', item.id)}
       />
       {isEditing && (
         <TouchableOpacity

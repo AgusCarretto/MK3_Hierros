@@ -23,7 +23,6 @@ import { WorkImageService } from './Trabajos/workImage.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),

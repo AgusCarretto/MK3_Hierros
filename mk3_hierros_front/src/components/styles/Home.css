@@ -1,0 +1,171 @@
+
+
+/* Estilos para la sección principal (hero) */
+.hero-section {
+  position: relative;
+  height: 40vh; /* Ocupa el 40% de la altura de la ventana */
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Pseudo-elemento para el filtro de opacidad */
+.hero-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Capa de color negro con 50% de opacidad */
+  z-index: 1; /* Asegura que la capa esté debajo del contenido pero encima de la imagen */
+}
+
+/* Contenedor del título dentro del hero */
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Estilos de la imagen del título */
+.hero-title-img {
+  max-width: 90%;
+  height: auto;
+}
+
+/* Estilos para el contenido principal del home */
+.home-content {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las secciones se envuelvan en pantallas pequeñas */
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.home-part-left,
+.home-part-right {
+  flex: 1; /* Permite que ambas secciones ocupen el mismo espacio */
+  min-width: 300px; /* Ancho mínimo para cada sección */
+  background-color: #34495e;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.home-content h2 {
+  color: #ecf0f1;
+  border-bottom: 2px solid #2ecc71;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.home-content p,
+.home-content ul {
+  color: #bdc3c7;
+  line-height: 1.6;
+}
+
+.home-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.home-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.home-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Media query para móviles */
+@media (max-width: 768px) {
+  .home-content {
+    flex-direction: column;
+  }
+}
+
+/* Estilos de los enlaces superpuestos en el hero */
+.hero-nav-links {
+  position: absolute; /* Posiciona los enlaces sobre la imagen */
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 3; /* Asegura que estén por encima de la capa de opacidad */
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilos para los enlaces y la animación de subrayado */
+.hero-nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+  position: relative; /* Necesario para posicionar el pseudo-elemento */
+}
+
+/* Pseudo-elemento para el subrayado animado */
+.hero-nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; /* Posición debajo del texto */
+  left: 50%;
+  width: 0; /* Empieza con ancho cero */
+  height: 2px;
+  background-color: #2ecc71;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.hero-nav-links a:hover::after {
+  width: 100%; /* El ancho aumenta a 100% al pasar el mouse */
+  left: 0; /* Se mueve a la izquierda para que crezca desde el centro */
+}
+
+/* Media query para móviles */
+@media (max-width: 768px) {
+  .hero-nav-links {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+
+  .hero-section {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 2rem;
+  }
+  
+  .hero-content {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 1rem; /* Espacio entre el nav y la imagen del título */
+  }
+
+  .hero-title-img {
+    max-width: 80%;
+  }
+
+  .home-content {
+    flex-direction: column;
+  }
+}

@@ -11,10 +11,6 @@ export const workService = {
   async getWorks(): Promise<Work[]> {
     const response = await fetch(`${API_URL}/trabajo`);
     return response.json();
-<<<<<<< Updated upstream
-  }
-};
-=======
   },
 
   async getWorkById(id:string): Promise<Work> {
@@ -97,4 +93,4 @@ export const workService = {
   },
 
 };
->>>>>>> Stashed changes
+
