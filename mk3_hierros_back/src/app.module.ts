@@ -12,20 +12,17 @@ import { Priority, Status, Work } from './Entity/Work.entity';
 import { TrabajoModule } from './Trabajos/trabajo.module';
 import { DataSource } from 'typeorm';
 import { Category } from './Entity/Category.entity';
+import { WorkImage } from './Entity/WorkImage.entity';
+import { WorkImageService } from './Trabajos/workImage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Category]),
-    TypeOrmModule.forFeature([Work]),
+    TypeOrmModule.forFeature([Category, Work, WorkImage]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const dbPassword = configService.get<string>('DB_PASSWORD');
-
-        console.log('🔍 Tipo de DB_PASSWORD:', typeof dbPassword);
-        console.log('🔍 Valor de DB_PASSWORD:', JSON.stringify(dbPassword));
 
         return {
           type: 'postgres',
@@ -43,7 +40,7 @@ import { Category } from './Entity/Category.entity';
     TrabajoModule,
   ],
   controllers: [AppController, CategoriaController, TrabajoController],
-  providers: [AppService, CategoriaService, TrabajoService],
+  providers: [AppService, CategoriaService, TrabajoService, WorkImageService],
 })
 export class AppModule implements OnModuleInit {
   //okay el agu explica esto, el OnModuleInit es un hook que se ejecuta cuando el modulo se inicializa del todo.
