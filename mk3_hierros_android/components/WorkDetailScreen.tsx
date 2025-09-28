@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
   Modal,
   Image,
-
   FlatList,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Work, WorkImage } from '../types/work';
@@ -22,12 +22,11 @@ import { workService } from '../services/api';
 interface WorkDetailScreenProps {
   workId?: string;
   initialWork?: Work;
-
   onWorkUpdated?: () => void;
   onClose: () => void;
 }
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const imageSize = (screenWidth - 64) / 3; // 3 imágenes por fila con padding
 
 export default function WorkDetailScreen({
@@ -37,13 +36,18 @@ export default function WorkDetailScreen({
   onClose
 }: WorkDetailScreenProps) {
   const [work, setWork] = useState<Work | null>(initialWork || null);
-
   const [workImages, setWorkImages] = useState<WorkImage[]>([]);
   const [loading, setLoading] = useState(!initialWork);
   const [updating, setUpdating] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+
+  // Estados para el visor de imágenes
+  const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [allImages, setAllImages] = useState<(WorkImage | string)[]>([]);
+
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -53,7 +57,6 @@ export default function WorkDetailScreen({
     finalPrice: 0,
   });
 
-
   const priorityOptions = ['Baja', 'Media', 'Alta', 'Crítica'];
   const statusOptions = ['Cotización', 'Pendiente Aprobación', 'Compra Materiales', 'En curso', 'Finalizado', 'Cancelado'];
 
@@ -62,10 +65,14 @@ export default function WorkDetailScreen({
       loadWorkDetails();
     } else if (initialWork) {
       initializeEditForm(initialWork);
-
       setWorkImages(initialWork.images || []);
     }
   }, [workId, initialWork]);
+
+  // Actualizar la lista completa de imágenes cuando cambien las imágenes guardadas o seleccionadas
+  useEffect(() => {
+    setAllImages([...workImages, ...selectedImages]);
+  }, [workImages, selectedImages]);
 
   const loadWorkDetails = async () => {
     if (!workId) return;
@@ -74,7 +81,6 @@ export default function WorkDetailScreen({
       setLoading(true);
       const workDetails = await workService.getWorkById(workId);
       setWork(workDetails);
-
       setWorkImages(workDetails.images || []);
       initializeEditForm(workDetails);
     } catch (error) {
@@ -96,8 +102,45 @@ export default function WorkDetailScreen({
     });
   };
 
+  // Función para abrir el visor de imágenes
+  const openImageViewer = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsImageViewerVisible(true);
+  };
 
-  // Función para seleccionar múltiples imágenes
+  // Función para cerrar el visor de imágenes
+  const closeImageViewer = () => {
+    setIsImageViewerVisible(false);
+  };
+
+  // Función para navegar a la imagen anterior
+  const goToPreviousImage = () => {
+    setSelectedImageIndex((prev) =>
+      prev === 0 ? allImages.length - 1 : prev - 1
+    );
+  };
+
+  // Función para navegar a la siguiente imagen
+  const goToNextImage = () => {
+    setSelectedImageIndex((prev) =>
+      prev === allImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  // Función para obtener la URL de una imagen
+  const getImageUrl = (item: WorkImage | string, index: number): string => {
+    if (typeof item === 'string') {
+      return item; // Es una imagen seleccionada (URI local)
+    } else {
+      // Validar que work existe antes de usarlo
+      if (!work) {
+        console.warn('Work is null when trying to get image URL');
+        return ''; // O una imagen placeholder
+      }
+      return workService.getWorkImageUrl(work.id, item.id); // Es una imagen guardada
+    }
+  };
+
   const selectImages = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -123,7 +166,6 @@ export default function WorkDetailScreen({
     }
   };
 
-  // Función para tomar foto
   const takePhoto = async () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -147,7 +189,6 @@ export default function WorkDetailScreen({
     }
   };
 
-  // Función para mostrar opciones de imagen
   const showImageOptions = () => {
     Alert.alert(
       'Agregar Imágenes',
@@ -160,12 +201,10 @@ export default function WorkDetailScreen({
     );
   };
 
-  // Función para remover imagen seleccionada
   const removeSelectedImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Función para eliminar imagen guardada
   const deleteImage = async (imageId: string) => {
     Alert.alert(
       'Eliminar Imagen',
@@ -194,16 +233,13 @@ export default function WorkDetailScreen({
     try {
       setUpdating(true);
 
-      // Actualizar información básica del trabajo
       await workService.updateWorkById(work.id, editForm);
 
-      // Si hay nuevas imágenes seleccionadas, subirlas
       if (selectedImages.length > 0) {
         setUploadingImages(true);
         await workService.uploadWorkImages(work.id, selectedImages);
         setSelectedImages([]);
 
-        // Recargar imágenes del trabajo
         const updatedImages = await workService.getWorkImages(work.id);
         setWorkImages(updatedImages);
       }
@@ -217,7 +253,6 @@ export default function WorkDetailScreen({
       Alert.alert('Error', 'No se pudo actualizar el trabajo');
     } finally {
       setUpdating(false);
-
       setUploadingImages(false);
     }
   };
@@ -232,7 +267,6 @@ export default function WorkDetailScreen({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-
       case 'Finalizado': return COLORS.SUCCESS;
       case 'En curso': return COLORS.ACCENT;
       case 'Pendiente Aprobación': return COLORS.WARNING;
@@ -245,7 +279,6 @@ export default function WorkDetailScreen({
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-
       case 'Crítica': return COLORS.ERROR;
       case 'Alta': return COLORS.WARNING;
       case 'Media': return COLORS.ACCENT;
@@ -274,15 +307,16 @@ export default function WorkDetailScreen({
     }).format(price);
   };
 
-// console.log('Error loading image:', item.id)
   // Componente para renderizar imagen de la galería
-  const renderWorkImage = ({ item }: { item: WorkImage }) => (
+  const renderWorkImage = ({ item, index }: { item: WorkImage; index: number }) => (
     <View style={styles.imageContainer}>
-      <Image
-        source={{ uri: workService.getWorkImageUrl(work.id, item.id) }}
-        style={styles.galleryImage}
-        onError={() => console.log('Error loading image:', item.id)}
-      />
+      <TouchableOpacity onPress={() => openImageViewer(index)}>
+        <Image
+          source={{ uri: workService.getWorkImageUrl(work!.id, item.id) }}
+          style={styles.galleryImage}
+          onError={() => console.log('Error loading image:', item.id)}
+        />
+      </TouchableOpacity>
       {isEditing && (
         <TouchableOpacity
           style={styles.deleteImageButton}
@@ -295,20 +329,112 @@ export default function WorkDetailScreen({
   );
 
   // Componente para renderizar imagen seleccionada
-  const renderSelectedImage = ({ item, index }: { item: string; index: number }) => (
-    <View style={styles.imageContainer}>
-      <Image
-        source={{ uri: item }}
-        style={[styles.galleryImage, styles.selectedImageBorder]}
-      />
-      <TouchableOpacity
-        style={styles.deleteImageButton}
-        onPress={() => removeSelectedImage(index)}
+  const renderSelectedImage = ({ item, index }: { item: string; index: number }) => {
+    const globalIndex = workImages.length + index;
+    return (
+      <View style={styles.imageContainer}>
+        <TouchableOpacity onPress={() => openImageViewer(globalIndex)}>
+          <Image
+            source={{ uri: item }}
+            style={[styles.galleryImage, styles.selectedImageBorder]}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteImageButton}
+          onPress={() => removeSelectedImage(index)}
+        >
+          <Text style={styles.deleteImageText}>×</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // Modal del visor de imágenes
+  const ImageViewerModal = () => {
+    // No mostrar el modal si no hay trabajo cargado o no hay imágenes
+    if (!work || allImages.length === 0 || selectedImageIndex >= allImages.length) {
+      return null;
+    }
+
+    return (
+      <Modal
+        visible={isImageViewerVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeImageViewer}
       >
-        <Text style={styles.deleteImageText}>×</Text>
-      </TouchableOpacity>
-    </View>
-  );
+        <SafeAreaView style={styles.imageViewerContainer}>
+          {/* Header del visor */}
+          <View style={styles.imageViewerHeader}>
+            <TouchableOpacity onPress={closeImageViewer} style={styles.closeViewerButton}>
+              <Text style={styles.closeViewerText}>✕</Text>
+            </TouchableOpacity>
+            <Text style={styles.imageCounter}>
+              {selectedImageIndex + 1} de {allImages.length}
+            </Text>
+            <View style={styles.placeholder} />
+          </View>
+
+          {/* Imagen principal */}
+          <View style={styles.imageViewerContent}>
+            <TouchableOpacity
+              style={styles.navButton}
+              onPress={goToPreviousImage}
+              disabled={allImages.length <= 1}
+            >
+              <Text style={[styles.navButtonText, allImages.length <= 1 && styles.navButtonDisabled]}>
+                ‹
+              </Text>
+            </TouchableOpacity>
+
+            <Image
+              source={{ uri: getImageUrl(allImages[selectedImageIndex], selectedImageIndex) }}
+              style={styles.fullScreenImage}
+              resizeMode="contain"
+              onError={() => console.log('Error loading full screen image')}
+            />
+
+            <TouchableOpacity
+              style={styles.navButton}
+              onPress={goToNextImage}
+              disabled={allImages.length <= 1}
+            >
+              <Text style={[styles.navButtonText, allImages.length <= 1 && styles.navButtonDisabled]}>
+                ›
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Thumbnails en la parte inferior */}
+          {allImages.length > 1 && (
+            <View style={styles.thumbnailContainer}>
+              <FlatList
+                data={allImages}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(_, index) => `thumb-${index}`}
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.thumbnail,
+                      selectedImageIndex === index && styles.selectedThumbnail
+                    ]}
+                    onPress={() => setSelectedImageIndex(index)}
+                  >
+                    <Image
+                      source={{ uri: getImageUrl(item, index) }}
+                      style={styles.thumbnailImage}
+                      onError={() => console.log('Error loading thumbnail')}
+                    />
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+        </SafeAreaView>
+      </Modal>
+    );
+  };
 
   if (loading) {
     return (
@@ -592,6 +718,9 @@ export default function WorkDetailScreen({
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Modal del visor de imágenes */}
+        <ImageViewerModal />
       </View>
     </Modal>
   );
@@ -782,6 +911,82 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
     marginLeft: 8,
   },
+
+  // ESTILOS PARA EL VISOR DE IMÁGENES
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+  },
+  imageViewerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  closeViewerButton: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  closeViewerText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  imageCounter: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  placeholder: {
+    width: 40,
+  },
+  imageViewerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navButton: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navButtonText: {
+    color: 'white',
+    fontSize: 40,
+    fontWeight: 'bold',
+  },
+  navButtonDisabled: {
+    opacity: 0.3,
+  },
+  fullScreenImage: {
+    flex: 1,
+    width: screenWidth - 100,
+    height: screenHeight - 200,
+  },
+  thumbnailContainer: {
+    height: 80,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  thumbnail: {
+    marginHorizontal: 5,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedThumbnail: {
+    borderColor: COLORS.ACCENT,
+  },
+  thumbnailImage: {
+    width: 60,
+    height: 60,
+  },
+
   // OTROS ESTILOS EXISTENTES
   priorityContainer: {
     flexDirection: 'row',
