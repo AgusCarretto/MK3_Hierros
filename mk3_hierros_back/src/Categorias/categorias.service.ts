@@ -16,7 +16,7 @@ export class CategoriaService {
 
 
   async getById(id: string): Promise<Category> {
-    const category = await this.repo_cat.findOneBy({ id });
+    const category = await this.repoCat.findOneBy({ id });
     if (category !== null) {
       return category;
     } else {
@@ -36,7 +36,7 @@ export class CategoriaService {
 
 
   async deleteCategory(id: string): Promise<void> {
-    const category = await this.repo_cat.findOne({ where: { id } });
+    const category = await this.repoCat.findOne({ where: { id } });
 
     if (category) {
       await this.repoCat.remove(category);
@@ -46,7 +46,7 @@ export class CategoriaService {
   }
 
   async updateCategory(id: string, category: Category): Promise<Category> {
-    await this.repo_cat.save(category);
+    await this.repoCat.save(category);
     return category;
   }
 
