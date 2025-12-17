@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { FlatList, View, StyleSheet, Text } from 'react-native';
-import { Work, Status } from '../types/work';
+import { useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../assets/constants/colors';
+import { Status, Work } from '../types/work';
 import WorkCard from './WorkCard';
 import WorkDetailScreen from './WorkDetailScreen';
 
@@ -19,6 +19,28 @@ export default function WorkList({
   onStatusPress
 }: WorkListProps) {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
+
+  const WorkListHeader = ({
+    totalWorks,
+    groupedWorks
+  }: {
+    totalWorks: number;
+    groupedWorks: Record<Status, Work[]>;
+  }) => (
+    <View style={styles.headerStats}>
+      <Text style={styles.totalWorks}>
+        Total: {totalWorks} trabajo{totalWorks !== 1 ? 's' : ''}
+      </Text>
+      <View style={styles.statusSummary}>
+        {Object.entries(groupedWorks).map(([status, statusWorks]) => (
+          <View key={status} style={styles.statusCount}>
+            <Text style={styles.statusCountNumber}>{statusWorks.length}</Text>
+            <Text style={styles.statusCountLabel}>{status}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 
   const handleWorkPress = (work: Work) => {
     setSelectedWork(work);
@@ -82,21 +104,12 @@ export default function WorkList({
         )}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={() => (
-          <View style={styles.headerStats}>
-            <Text style={styles.totalWorks}>
-              Total: {works.length} trabajo{works.length !== 1 ? 's' : ''}
-            </Text>
-            <View style={styles.statusSummary}>
-              {Object.entries(groupedWorks).map(([status, statusWorks]) => (
-                <View key={status} style={styles.statusCount}>
-                  <Text style={styles.statusCountNumber}>{statusWorks.length}</Text>
-                  <Text style={styles.statusCountLabel}>{status}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
+        ListHeaderComponent={
+          <WorkListHeader
+            totalWorks={works.length}
+            groupedWorks={groupedWorks}
+          />
+        }
       />
 
       {/* Modal de detalle */}
