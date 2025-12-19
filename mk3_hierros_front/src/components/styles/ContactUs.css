@@ -1,106 +1,116 @@
+.contact-page {
+  background-color: #0a0a0a;
+  min-height: 100vh;
+  padding: 120px 5%;
+  color: #fff;
+}
 
 .contact-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #2c3e50; /* Color de fondo oscuro */
-  padding: 2rem;
-  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
 }
 
-.form-card {
-  background-color: #34495e; /* Fondo del formulario */
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 100%;
+/* Lado Info */
+.contact-title {
+  font-size: 3.5rem;
+  font-weight: 200;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 20px 0;
 }
 
-.form-card h1 {
-  text-align: center;
-  color: #ecf0f1;
-  margin-bottom: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 1px;
+.contact-intro {
+  color: #888;
+  font-size: 1.1rem;
+  margin-bottom: 50px;
+  max-width: 400px;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.info-block {
+  margin-bottom: 30px;
 }
 
-.form-group label {
+.info-block label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #ecf0f1;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.7rem;
+  color: #555;
+  letter-spacing: 3px;
+  margin-bottom: 5px;
 }
 
-.form-group input,
+.info-block p {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+/* Formulario Minimalista */
+.minimal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form-group input, 
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem;
+  background: transparent;
   border: none;
-  border-radius: 5px;
-  background-color: #4a6279;
-  color: #ecf0f1;
-  font-size: 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-bottom: 1px solid #333; /* Línea sutil */
+  padding: 15px 0;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
 }
 
-.form-group input:focus,
+.form-group input:focus, 
 .form-group textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #3498db; /* Un borde de enfoque sutil */
+  border-bottom-color: #fff; /* Se ilumina al escribir */
 }
 
-.submit-button {
-  width: 100%;
-  padding: 1rem;
-  background-color: #27ae60;
-  color: #fff;
+.btn-send {
+  align-self: flex-start;
+  background-color: #fff;
+  color: #000;
   border: none;
-  border-radius: 5px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  padding: 15px 40px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.submit-button:hover {
-  background-color: #2ecc71;
-}
-
-.submit-button:active {
-  background-color: #27ae60;
-}
-
-/* Contenedor de la imagen/visual de la derecha */
-.contact-visual {
-  flex: 1; /* Ocupa el espacio restante */
-  min-width: 300px;
-  max-width: 500px;
-  height: 400px;
-  background-color: #4a6279; /* Color de fondo temporal */
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: #ecf0f1;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  gap: 10px;
 }
 
-/* Media query para móviles */
-@media (max-width: 768px) {
+.btn-send:hover {
+  background-color: #ccc;
+  gap: 20px; /* La flecha se mueve al hacer hover */
+}
+
+/* Responsive */
+@media (max-width: 900px) {
   .contact-container {
-    flex-direction: column; /* Apila los elementos verticalmente */
+    grid-template-columns: 1fr;
+    gap: 60px;
   }
-  .form-card,
-  .contact-visual {
-    max-width: 100%; /* Ocupa el ancho completo en móviles */
-    width: 100%;
+  .contact-title {
+    font-size: 2.5rem;
   }
+}
+
+
+.btn-send.wpp-style {
+  background-color: #25D366; /* El verde oficial de WhatsApp */
+  color: #fff;
+}
+
+.btn-send.wpp-style:hover {
+  background-color: #128C7E; /* Un verde más oscuro para el hover */
+  transform: scale(1.05);
 }

@@ -1,43 +1,91 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './styles/ContactUs.css';
 
-
 const ContactUs = () => {
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const sendWhatsApp = (e) => {
     e.preventDefault();
-    // Aquí puedes manejar la lógica de envío del formulario
-    console.log("Formulario enviado");
+
+    const PHONE_NUMBER = "59898292325"; // Reemplaza con tu número (código de país + número sin espacios)
+    
+    // Construimos el mensaje con formato para que te llegue prolijo
+    const text = `*NUEVA CONSULTA - MK3*%0A%0A` +
+                 `*Nombre:* ${formData.name}%0A` +
+                 `*Asunto:* ${formData.subject}%0A` +
+                 `*Mensaje:* ${formData.message}`;
+
+    const url = `https://wa.me/${PHONE_NUMBER}?text=${text}`;
+    
+    // Abre WhatsApp en una pestaña nueva
+    window.open(url, '_blank');
   };
 
   return (
-    <div className="contact-container">
-      <div className="form-card">
-        <h1>Contáctanos</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Nombre completo</label>
-            <input type="text" id="name" name="name" required />
+    <main className="contact-page">
+      <div className="contact-container">
+        
+        <section className="contact-info">
+          <span className="section-number">03</span>
+          <h1 className="contact-title">Hablemos por WhatsApp</h1>
+          <p className="contact-intro">
+            Completá los datos y te redirigiremos a nuestro chat oficial para asesorarte mejor.
+          </p>
+          
+          <div className="info-block">
+            <label>ATENCIÓN DIRECTA</label>
+            <p>Lunes a Viernes de 9 a 18hs</p>
           </div>
-          <div className="form-group">
-            <label htmlFor="email">Mail</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone">Celular</label>
-            <input type="tel" id="phone" name="phone" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="description">Descripción</label>
-            <textarea id="description" name="description" rows="5" required></textarea>
-          </div>
-          <button type="submit" className="submit-button">Enviar</button>
-        </form>
+        </section>
+
+        <section className="contact-form-container">
+          <form onSubmit={sendWhatsApp} className="minimal-form">
+            <div className="form-group">
+              <input 
+                type="text" 
+                name="name" 
+                placeholder="TU NOMBRE" 
+                required 
+                onChange={handleChange} 
+              />
+            </div>
+            <div className="form-group">
+              <input 
+                type="text" 
+                name="subject" 
+                placeholder="PROYECTO (EJ: REJAS, PORTÓN)" 
+                required 
+                onChange={handleChange} 
+              />
+            </div>
+            <div className="form-group">
+              <textarea 
+                name="message" 
+                placeholder="¿CÓMO PODEMOS AYUDARTE?" 
+                rows="5" 
+                required 
+                onChange={handleChange}
+              ></textarea>
+            </div>
+            <button type="submit" className="btn-send wpp-style">
+              ENVIAR CONSULTA <span>→</span>
+            </button>
+          </form>
+        </section>
+
       </div>
-      {/* Nuevo contenedor para la imagen */}
-      <div className="contact-visual">
-        <p>Aquí puedes poner una imagen, mapa o texto.</p>
-      </div>
-    </div>
+    </main>
   );
 };
 
