@@ -21,20 +21,30 @@ const OurWork = () => {
     fetchWorks();
   }, []);
 
-  if (loading) return <div className="loader-minimal">Cargando portafolio...</div>;
+  if (loading)
+    return <div className="loader-minimal">Cargando trabajos...</div>;
 
   return (
     <section className="our-work-section">
       <div className="header-container">
-        <span className="subtitle">Proyectos Seleccionados</span>
-        <h2 className="title-minimal">Nuestra Herreía</h2>
+        <span className="subtitle neon-pill">Portafolio en evolución</span>
+        <h2 className="title-minimal">Nuestros Trabajos</h2>
       </div>
-      
-      <div className="works-minimal-grid">
-        {works.map((work) => (
-          <WorkCard key={work.id} work={work} />
-        ))}
-      </div>
+
+      {works.length === 0 ? (
+        <div className="empty-state glow-panel">
+          <span className="empty-state-badge">Taller en marcha</span>
+          <h3>
+            Se están forjando nuevos trabajos, regresa pronto para poder verlos.
+          </h3>
+        </div>
+      ) : (
+        <div className="works-minimal-grid glow-panel">
+          {works.map((work) => (
+            <WorkCard key={work.id} work={work} />
+          ))}
+        </div>
+      )}
     </section>
   );
 };

@@ -43,35 +43,53 @@ const WorkDetail = () => {
   if (!work) return <div className="detail-error">Trabajo no encontrado</div>;
 
   return (
-    <div className="work-detail-page">
-      <button className="back-nav" onClick={() => navigate(-1)}>← VOLVER</button>
-      
-      <div className="detail-header">
+    <main className="work-detail-page">
+      <div className="detail-nav">
+        <button className="back-nav" onClick={() => navigate(-1)}>
+          ← Volver
+        </button>
+        <span className="detail-pill neon-pill">Proyecto destacado</span>
+      </div>
+
+      <section className="detail-header glow-panel">
         <h1>{work.title}</h1>
         <p>{work.description}</p>
-      </div>
+      </section>
 
-      {/* CONTENEDOR DEL CARRUSEL */}
-      <div className="slider-container">
+      <section className="slider-shell glow-panel">
         {imagesMetadata.length > 0 ? (
           <>
-            <button className="arrow left" onClick={prevSlide}>&#10094;</button>
-            
+            <button
+              className="arrow left"
+              onClick={prevSlide}
+              aria-label="Imagen anterior"
+            >
+              &#10094;
+            </button>
             <div className="main-slide">
-              <img 
-                src={`http://localhost:3000/trabajo/${id}/images/${imagesMetadata[currentIndex].id}`} 
-                alt={`Proyecto ${currentIndex}`} 
+              <img
+                src={`http://localhost:3000/trabajo/${id}/images/${imagesMetadata[currentIndex].id}`}
+                alt={`Proyecto ${currentIndex + 1}`}
               />
-              <span className="counter">{currentIndex + 1} / {imagesMetadata.length}</span>
+              <span className="counter">
+                {currentIndex + 1} / {imagesMetadata.length}
+              </span>
             </div>
-
-            <button className="arrow right" onClick={nextSlide}>&#10095;</button>
+            <button
+              className="arrow right"
+              onClick={nextSlide}
+              aria-label="Imagen siguiente"
+            >
+              &#10095;
+            </button>
           </>
         ) : (
-          <p>No hay imágenes disponibles para este proyecto.</p>
+          <p className="slider-empty">
+            No hay imágenes disponibles para este proyecto.
+          </p>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

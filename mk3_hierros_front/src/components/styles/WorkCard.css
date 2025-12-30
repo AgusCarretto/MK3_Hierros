@@ -1,55 +1,75 @@
 .work-card {
   position: relative;
-  background: #1a1a1a;
-  border-radius: 0; /* Bordes rectos para un look más arquitectónico */
+  border-radius: 22px;
   overflow: hidden;
   aspect-ratio: 16 / 10;
   cursor: pointer;
-  border: 1px solid #222;
-  transition: border-color 0.4s ease;
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, rgba(12, 12, 15, 0.85) 0%, rgba(6, 6, 8, 0.95) 100%);
+  transition: transform var(--transition-snappy), border-color var(--transition-snappy), box-shadow var(--transition-snappy);
+}
+
+.work-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(121, 255, 225, 0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity var(--transition-snappy);
+  pointer-events: none;
 }
 
 .work-card:hover {
-  border-color: #555;
+  transform: translateY(-10px);
+  border-color: var(--accent);
+  box-shadow: 0 20px 50px rgba(121, 255, 225, 0.22);
+}
+
+.work-card:hover::after {
+  opacity: 1;
 }
 
 .work-thumbnail {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(40%); /* Look industrial */
-  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s ease;
+  filter: saturate(65%) contrast(110%);
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter var(--transition-snappy);
 }
 
 .work-card:hover .work-thumbnail {
-  transform: scale(1.05);
-  filter: grayscale(0%);
+  transform: scale(1.08);
+  filter: saturate(110%) contrast(115%);
 }
 
-/* Overlay de información */
 .work-info-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 30px;
-  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-  color: white;
+  inset: auto 0 0;
+  padding: 28px 28px 32px;
+  background: linear-gradient(to top, rgba(3, 3, 3, 0.9), rgba(3, 3, 3, 0));
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .work-info-overlay h3 {
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 400;
+  font-size: 1.35rem;
+  font-family: var(--font-heading);
+  font-weight: 300;
+  letter-spacing: 1px;
 }
 
 .work-info-overlay p {
-  font-size: 0.85rem;
-  color: #aaa;
-  margin-top: 5px;
+  font-size: 0.82rem;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0;
   opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
+  transform: translateY(8px);
+  transition: opacity var(--transition-snappy), transform var(--transition-snappy);
 }
 
 .work-card:hover .work-info-overlay p {
