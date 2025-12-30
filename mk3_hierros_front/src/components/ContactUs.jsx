@@ -35,46 +35,52 @@ const ContactUs = () => {
   return (
     <main className="contact-page">
       <div className="contact-container">
-        
-        <section className="contact-info">
-          <span className="section-number">03</span>
+        <section className="contact-info glow-panel">
+          <div className="contact-header">
+            <span className="section-number">03</span>
+            <span className="contact-label neon-pill">Contacto directo</span>
+          </div>
           <h1 className="contact-title">Hablemos por WhatsApp</h1>
           <p className="contact-intro">
-            Completá los datos y te redirigiremos a nuestro chat oficial para asesorarte mejor.
+            Completá los datos y te redirigiremos a nuestro chat oficial para
+            asesorarte mejor.
           </p>
-          
           <div className="info-block">
             <label>ATENCIÓN DIRECTA</label>
             <p>Lunes a Viernes de 9 a 18hs</p>
           </div>
+          <div className="info-block">
+            <label>UBICACIÓN</label>
+            <p>Montevideo, Uruguay — Taller MK3</p>
+          </div>
         </section>
 
-        <section className="contact-form-container">
+        <section className="contact-form-container glow-panel">
           <form onSubmit={sendWhatsApp} className="minimal-form">
             <div className="form-group">
-              <input 
-                type="text" 
-                name="name" 
-                placeholder="TU NOMBRE" 
-                required 
-                onChange={handleChange} 
+              <input
+                type="text"
+                name="name"
+                placeholder="TU NOMBRE"
+                required
+                onChange={handleChange}
               />
             </div>
             <div className="form-group">
-              <input 
-                type="text" 
-                name="subject" 
-                placeholder="PROYECTO (EJ: REJAS, PORTÓN)" 
-                required 
-                onChange={handleChange} 
+              <input
+                type="text"
+                name="subject"
+                placeholder="PROYECTO (EJ: REJAS, PORTÓN)"
+                required
+                onChange={handleChange}
               />
             </div>
             <div className="form-group">
-              <textarea 
-                name="message" 
-                placeholder="¿CÓMO PODEMOS AYUDARTE?" 
-                rows="5" 
-                required 
+              <textarea
+                name="message"
+                placeholder="¿CÓMO PODEMOS AYUDARTE?"
+                rows="5"
+                required
                 onChange={handleChange}
               ></textarea>
             </div>
@@ -83,7 +89,6 @@ const ContactUs = () => {
             </button>
           </form>
         </section>
-
       </div>
     </main>
   );
