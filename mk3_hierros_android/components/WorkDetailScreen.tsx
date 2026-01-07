@@ -436,29 +436,33 @@ export default function WorkDetailScreen({
     );
   };
 
-  if (loading) {
-    return (
-      <Modal visible={true} animationType="slide">
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-          <Text style={styles.loadingText}>Cargando detalles...</Text>
-        </View>
-      </Modal>
-    );
-  }
+ if (loading) {
+   return (
+     <View style={{ flex: 1 }}>
+       <Modal visible={true} animationType="slide">
+         <View style={styles.loadingContainer}>
+           <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+           <Text style={styles.loadingText}>Cargando detalles...</Text>
+         </View>
+       </Modal>
+     </View>
+   );
+ }
 
-  if (!work) {
-    return (
-      <Modal visible={true} animationType="slide">
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No se pudo cargar el trabajo</Text>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>Volver</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    );
-  }
+ if (!work) {
+   return (
+     <View style={{ flex: 1 }}>
+       <Modal visible={true} animationType="slide">
+         <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>No se pudo cargar el trabajo</Text>
+           <TouchableOpacity style={styles.button} onPress={onClose}>
+             <Text style={styles.buttonText}>Volver</Text>
+           </TouchableOpacity>
+         </View>
+       </Modal>
+     </View>
+   );
+ }
 
   return (
     <Modal visible={true} animationType="slide">

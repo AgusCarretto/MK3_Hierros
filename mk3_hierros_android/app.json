@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mk3_hierros_android",
+    "name": "MK3 Hierros",
     "slug": "mk3_hierros_android",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.agusmateo.mk3hierros",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -37,6 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2d1094dd-4405-4143-82dd-f8a0e469baa5"
+      }
     }
   }
 }

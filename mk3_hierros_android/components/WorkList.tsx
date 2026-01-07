@@ -20,27 +20,31 @@ export default function WorkList({
 }: WorkListProps) {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
 
-  const WorkListHeader = ({
-    totalWorks,
-    groupedWorks
-  }: {
-    totalWorks: number;
-    groupedWorks: Record<Status, Work[]>;
-  }) => (
-    <View style={styles.headerStats}>
-      <Text style={styles.totalWorks}>
-        Total: {totalWorks} trabajo{totalWorks !== 1 ? 's' : ''}
-      </Text>
-      <View style={styles.statusSummary}>
-        {Object.entries(groupedWorks).map(([status, statusWorks]) => (
+
+const WorkListHeader = ({
+  totalWorks,
+  groupedWorks
+}: {
+  totalWorks: number;
+  groupedWorks: Record<Status, Work[]>;
+}) => (
+  <View style={styles.headerStats}>
+    <Text style={styles.totalWorks}>
+      Total: {totalWorks} trabajo{totalWorks !== 1 ? 's' : ''}
+    </Text>
+    <View style={styles.statusSummary}>
+      {Object.entries(groupedWorks).map(([status, statusWorks]) => {
+
+        return (
           <View key={status} style={styles.statusCount}>
             <Text style={styles.statusCountNumber}>{statusWorks.length}</Text>
             <Text style={styles.statusCountLabel}>{status}</Text>
           </View>
-        ))}
-      </View>
+        );
+      })}
     </View>
-  );
+  </View>
+);
 
   const handleWorkPress = (work: Work) => {
     setSelectedWork(work);
@@ -91,37 +95,38 @@ export default function WorkList({
   const groupedWorks = getWorksByStatus();
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={works}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <WorkCard
-            work={item}
-            onPress={() => handleWorkPress(item)}
-            onStatusPress={handleStatusPress}
+      <View style={styles.container}>
+        <FlatList
+          data={works}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <WorkCard
+              work={item}
+              onPress={() => handleWorkPress(item)}
+              onStatusPress={handleStatusPress}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <View>
+              <WorkListHeader
+                totalWorks={works.length}
+                groupedWorks={groupedWorks}
+              />
+            </View>
+          }
+        />
+
+        {selectedWork && (
+          <WorkDetailScreen
+            initialWork={selectedWork}
+            onWorkUpdated={handleWorkUpdated}
+            onClose={handleCloseDetail}
           />
         )}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <WorkListHeader
-            totalWorks={works.length}
-            groupedWorks={groupedWorks}
-          />
-        }
-      />
-
-      {/* Modal de detalle */}
-      {selectedWork && (
-        <WorkDetailScreen
-          initialWork={selectedWork}
-          onWorkUpdated={handleWorkUpdated}
-          onClose={handleCloseDetail}
-        />
-      )}
-    </View>
-  );
+      </View>
+    );
 }
 
 const styles = StyleSheet.create({

@@ -128,62 +128,64 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.BACKGROUND_PRIMARY} />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={COLORS.BACKGROUND_PRIMARY} />
 
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>MK3 Hierros</Text>
-            <Text style={styles.subtitle}>
-              {works.length} trabajo{works.length !== 1 ? 's' : ''} en sistema
-            </Text>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>MK3 Hierros</Text>
+              <Text style={styles.subtitle}>
+                {works.length} trabajo{works.length !== 1 ? 's' : ''} en sistema
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddWork}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleAddWork}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
+        <WorkList
+          works={works}
+          onWorksUpdate={handleWorkUpdated}
+          onStatusPress={handleStatusPress}
+        />
+
+        {/* Envolvemos todos los modales en un View para evitar el error de React.Fragment */}
+        <View>
+          {showCreateWork && (
+            <CreateNewWork
+              onWorkCreated={handleWorkCreated}
+              onClose={handleCloseCreateWork}
+            />
+          )}
+
+          {showStatusSelector && selectedWork && (
+            <StatusSelector
+              work={selectedWork}
+              visible={showStatusSelector}
+              onClose={handleCloseStatusSelector}
+              onStatusUpdated={handleStatusUpdated}
+              onFinishWorkRequested={handleFinishWorkRequested}
+            />
+          )}
+
+          {showFinishWork && workToFinish && (
+            <FinishWork
+              work={workToFinish}
+              visible={showFinishWork}
+              onClose={handleCloseFinishWork}
+              onWorkFinished={handleWorkFinished}
+            />
+          )}
         </View>
       </View>
-
-      <WorkList
-        works={works}
-        onWorksUpdate={handleWorkUpdated}
-        onStatusPress={handleStatusPress}
-      />
-
-      {showCreateWork && (
-        <CreateNewWork
-          onWorkCreated={handleWorkCreated}
-          onClose={handleCloseCreateWork}
-        />
-      )}
-
-      {showStatusSelector && selectedWork && (
-        <StatusSelector
-          work={selectedWork}
-          visible={showStatusSelector}
-          onClose={handleCloseStatusSelector}
-          onStatusUpdated={handleStatusUpdated}
-          onFinishWorkRequested={handleFinishWorkRequested}
-        />
-      )}
-
-      {/* Renderizar el componente FinishWork cuando sea necesario */}
-      {showFinishWork && workToFinish && (
-        <FinishWork
-          work={workToFinish}
-          visible={showFinishWork}
-          onClose={handleCloseFinishWork}
-          onWorkFinished={handleWorkFinished}
-        />
-      )}
-    </View>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
