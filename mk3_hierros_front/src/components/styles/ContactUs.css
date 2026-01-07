@@ -1,116 +1,168 @@
 .contact-page {
-  background-color: #0a0a0a;
   min-height: 100vh;
-  padding: 120px 5%;
-  color: #fff;
+  padding: 180px 6vw 140px;
+  color: var(--text-primary);
 }
 
 .contact-container {
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 100px;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 60px;
 }
 
-/* Lado Info */
+.contact-info,
+.contact-form-container {
+  padding: 70px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: relative;
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.contact-label {
+  letter-spacing: 6px;
+}
+
 .contact-title {
-  font-size: 3.5rem;
+  font-family: var(--font-heading);
+  font-size: 3.2rem;
   font-weight: 200;
   text-transform: uppercase;
-  line-height: 1.1;
-  margin: 20px 0;
+  line-height: 1.05;
+  margin: 0;
 }
 
 .contact-intro {
-  color: #888;
-  font-size: 1.1rem;
-  margin-bottom: 50px;
-  max-width: 400px;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  max-width: 420px;
+  margin: 0;
 }
 
 .info-block {
-  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .info-block label {
-  display: block;
   font-size: 0.7rem;
-  color: #555;
-  letter-spacing: 3px;
-  margin-bottom: 5px;
+  letter-spacing: 4px;
+  color: var(--text-soft);
 }
 
 .info-block p {
-  font-size: 1.1rem;
-  color: #ccc;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
-/* Formulario Minimalista */
 .minimal-form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 26px;
 }
 
-.form-group input, 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group input,
 .form-group textarea {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #333; /* Línea sutil */
-  padding: 15px 0;
-  color: #fff;
-  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  padding: 18px 22px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
   font-family: inherit;
-  transition: border-color 0.3s;
+  transition: border-color var(--transition-snappy), box-shadow var(--transition-snappy);
 }
 
-.form-group input:focus, 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-soft);
+  letter-spacing: 1px;
+}
+
+.form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-bottom-color: #fff; /* Se ilumina al escribir */
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(121, 255, 225, 0.18);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 140px;
 }
 
 .btn-send {
   align-self: flex-start;
-  background-color: #fff;
-  color: #000;
-  border: none;
-  padding: 15px 40px;
-  font-weight: 700;
+  border-radius: 999px;
+  padding: 18px 38px;
+  font-size: 0.8rem;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  transition: transform var(--transition-snappy), box-shadow var(--transition-snappy);
 }
 
-.btn-send:hover {
-  background-color: #ccc;
-  gap: 20px; /* La flecha se mueve al hacer hover */
+.btn-send span {
+  transition: transform var(--transition-snappy);
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .contact-container {
-    grid-template-columns: 1fr;
-    gap: 60px;
-  }
-  .contact-title {
-    font-size: 2.5rem;
-  }
+.btn-send:hover span {
+  transform: translateX(6px);
 }
-
 
 .btn-send.wpp-style {
-  background-color: #25D366; /* El verde oficial de WhatsApp */
-  color: #fff;
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #041f13;
+  border: 1px solid rgba(37, 211, 102, 0.5);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.25);
 }
 
 .btn-send.wpp-style:hover {
-  background-color: #128C7E; /* Un verde más oscuro para el hover */
-  transform: scale(1.05);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(37, 211, 102, 0.32);
+}
+
+@media (max-width: 980px) {
+  .contact-container {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-info,
+  .contact-form-container {
+    padding: 60px 48px;
+  }
+}
+
+@media (max-width: 620px) {
+  .contact-page {
+    padding: 140px 5vw 90px;
+  }
+
+  .contact-info,
+  .contact-form-container {
+    padding: 46px 30px;
+  }
+
+  .contact-title {
+    font-size: 2.4rem;
+  }
 }
