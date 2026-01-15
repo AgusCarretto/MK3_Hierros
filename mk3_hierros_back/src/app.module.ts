@@ -25,11 +25,11 @@ import { WorkImageService } from './Trabajos/workImage.service';
       useFactory: (configService: ConfigService) => {
         return {
           type: 'postgres',
-          host: configService.get<string>('DB_HOST'),
-          port: configService.get<number>('DB_PORT'),
-          username: configService.get<string>('DB_USER'),
-          password: configService.get<string>('DB_PASSWORD'),
-          database: configService.get<string>('DB_NAME'),
+          host: configService.get<string>('PGHOST'),
+          port: configService.get<number>('PGPORT'),
+          username: configService.get<string>('PGUSER'),
+          password: configService.get<string>('PGPASSWORD'),
+          database: configService.get<string>('PGDATABASE'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: true, // Esto no se usa en producción.
         };
