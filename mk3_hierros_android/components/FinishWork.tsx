@@ -10,7 +10,10 @@ import {
   ActivityIndicator,
   Modal,
   Image,
+  FlatList,
+  Dimensions,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '../assets/constants/colors';
 import { workService, categoryService } from '../services/api';
 import { Work } from '../types/work';
@@ -23,6 +26,9 @@ interface FinishWorkProps {
   onWorkFinished: () => void;
 }
 
+const { width: screenWidth } = Dimensions.get('window');
+const imageSize = (screenWidth - 64) / 3; // 3 imágenes por fila con padding
+
 export default function FinishWork({
   work,
   visible,
@@ -32,10 +38,10 @@ export default function FinishWork({
   const [finishing, setFinishing] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [form, setForm] = useState({
     marketingTitle: '',
     marketingDescription: '',
-    images: [''],
     categoryId: 0,
   });
 
@@ -43,12 +49,13 @@ export default function FinishWork({
     if (visible) {
       loadCategories();
       // Pre-llenar con datos del trabajo actual
-      setForm(prev => ({
-        ...prev,
+      setForm({
         marketingTitle: work.title,
         marketingDescription: work.description,
-        images: work.image ? [work.image] : [''],
-      }));
+        categoryId: 0,
+      });
+      // Limpiar imágenes seleccionadas - las imágenes para web se eligen nuevas
+      setSelectedImages([]);
     }
   }, [visible, work]);
 
@@ -65,6 +72,70 @@ export default function FinishWork({
     }
   };
 
+  const selectImages = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permisos', 'Se necesitan permisos para acceder a la galería');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets) {
+        const uris = result.assets.map(asset => asset.uri);
+        setSelectedImages(prev => [...prev, ...uris]);
+      }
+    } catch (error) {
+      console.error('Error selecting images:', error);
+      Alert.alert('Error', 'No se pudieron seleccionar las imágenes');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permisos', 'Se necesitan permisos para usar la cámara');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImages(prev => [...prev, result.assets[0].uri]);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'No se pudo tomar la foto');
+    }
+  };
+
+  const showImageOptions = () => {
+    Alert.alert(
+      'Agregar Imágenes',
+      'Elige cómo quieres agregar imágenes',
+      [
+        { text: 'Cámara', onPress: takePhoto },
+        { text: 'Galería', onPress: selectImages },
+        { text: 'Cancelar', style: 'cancel' }
+      ]
+    );
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleFinishWork = async () => {
     // Validaciones
     if (!form.marketingTitle.trim()) {
@@ -79,7 +150,7 @@ export default function FinishWork({
       Alert.alert('Error', 'Debes seleccionar una categoría');
       return;
     }
-    if (!form.images.some(img => img.trim())) {
+    if (selectedImages.length === 0) {
       Alert.alert('Error', 'Debes agregar al menos una imagen');
       return;
     }
@@ -87,16 +158,25 @@ export default function FinishWork({
     try {
       setFinishing(true);
 
-      // Filtrar imágenes vacías
-      const validImages = form.images.filter(img => img.trim());
+      // Eliminar todas las imágenes existentes antes de subir las nuevas
+      if (work.images && work.images.length > 0) {
+        for (const image of work.images) {
+          await workService.deleteWorkImage(image.id);
+        }
+      }
 
+      // Actualizar el trabajo con estado finalizado
       await workService.updateWorkById(work.id, {
         status: 'Finalizado',
         marketingTitle: form.marketingTitle,
         marketingDescription: form.marketingDescription,
-        marketingImages: validImages,
         categoryId: form.categoryId,
       });
+
+      // Subir solo las imágenes nuevas seleccionadas para web
+      if (selectedImages.length > 0) {
+        await workService.uploadWorkImages(work.id, selectedImages);
+      }
 
       Alert.alert(
         'Trabajo Finalizado',
@@ -119,35 +199,22 @@ export default function FinishWork({
     }
   };
 
-  const addImageField = () => {
-    if (form.images.length < 5) { // Límite de 5 imágenes
-      setForm(prev => ({
-        ...prev,
-        images: [...prev.images, '']
-      }));
-    }
-  };
-
-  const updateImage = (index: number, value: string) => {
-    const newImages = [...form.images];
-    newImages[index] = value;
-    setForm(prev => ({
-      ...prev,
-      images: newImages
-    }));
-  };
-
-  const removeImage = (index: number) => {
-    if (form.images.length > 1) {
-      const newImages = form.images.filter((_, i) => i !== index);
-      setForm(prev => ({
-        ...prev,
-        images: newImages
-      }));
-    }
-  };
-
   const selectedCategory = categories.find(cat => cat.id === form.categoryId);
+
+  const renderSelectedImage = ({ item, index }: { item: string; index: number }) => (
+    <View style={styles.imageContainer}>
+      <Image
+        source={{ uri: item }}
+        style={styles.galleryImage}
+      />
+      <TouchableOpacity
+        style={styles.deleteImageButton}
+        onPress={() => removeImage(index)}
+      >
+        <Text style={styles.deleteImageText}>×</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   if (!visible) return null;
 
@@ -170,6 +237,27 @@ export default function FinishWork({
               Este trabajo se mostrará en la web promocional
             </Text>
           </View>
+
+          {/* Mostrar imágenes existentes del trabajo (solo lectura) */}
+          {work.images && work.images.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.label}>Imágenes del Trabajo (Referencia)</Text>
+              <Text style={styles.hint}>
+                Estas son las imágenes internas del trabajo. No se mostrarán en la web.
+              </Text>
+              <View style={styles.existingImagesContainer}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {work.images.map((image, index) => (
+                    <Image
+                      key={index}
+                      source={{ uri: workService.getWorkImageUrl(work.id, image.id) }}
+                      style={styles.existingImage}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          )}
 
           {/* Título para marketing */}
           <View style={styles.section}>
@@ -239,52 +327,48 @@ export default function FinishWork({
             )}
           </View>
 
-          {/* Imágenes */}
+          {/* Imágenes para Web */}
           <View style={styles.section}>
-            <Text style={styles.label}>Imágenes para Web *</Text>
-            <Text style={styles.hint}>
-              Fotos finales del trabajo que se mostrarán en la galería web
-            </Text>
-
-            {form.images.map((image, index) => (
-              <View key={index} style={styles.imageInputContainer}>
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
-                  value={image}
-                  onChangeText={(text) => updateImage(index, text)}
-                  placeholder={`URL de imagen ${index + 1}`}
-                  placeholderTextColor={COLORS.TEXT_TERTIARY}
-                />
-                {form.images.length > 1 && (
-                  <TouchableOpacity
-                    style={styles.removeImageButton}
-                    onPress={() => removeImage(index)}
-                  >
-                    <Text style={styles.removeImageText}>×</Text>
-                  </TouchableOpacity>
-                )}
+            <View style={styles.imageSectionHeader}>
+              <View>
+                <Text style={styles.label}>Imágenes para Mostrar en Web *</Text>
+                <Text style={styles.hint}>
+                  Selecciona las fotos finales que se mostrarán a los clientes (máximo 5)
+                </Text>
               </View>
-            ))}
-
-            {/* Preview de imágenes */}
-            <View style={styles.imagePreviewContainer}>
-              {form.images.filter(img => img.trim()).map((image, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: image }}
-                  style={styles.imagePreview}
-                  onError={() => console.log('Error loading preview image')}
-                />
-              ))}
+              {selectedImages.length < 5 && (
+                <TouchableOpacity
+                  style={styles.addImageButton}
+                  onPress={showImageOptions}
+                  disabled={finishing}
+                >
+                  <Text style={styles.addImageButtonText}>+ Agregar</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
-            {form.images.length < 5 && (
-              <TouchableOpacity
-                style={styles.addImageButton}
-                onPress={addImageField}
-              >
-                <Text style={styles.addImageText}>+ Agregar otra imagen</Text>
-              </TouchableOpacity>
+            {/* Galería de imágenes seleccionadas */}
+            {selectedImages.length > 0 ? (
+              <FlatList
+                data={selectedImages}
+                renderItem={renderSelectedImage}
+                keyExtractor={(item, index) => `image-${index}`}
+                numColumns={3}
+                scrollEnabled={false}
+                style={styles.imageGrid}
+              />
+            ) : (
+              <View style={styles.noImagesContainer}>
+                <Text style={styles.noImagesText}>
+                  Selecciona las fotos finales para mostrar en la web
+                </Text>
+                <TouchableOpacity
+                  style={styles.addFirstImageButton}
+                  onPress={showImageOptions}
+                >
+                  <Text style={styles.addImageButtonText}>Seleccionar Fotos para Web</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
 
@@ -292,6 +376,12 @@ export default function FinishWork({
           <View style={styles.previewSection}>
             <Text style={styles.previewTitle}>Preview Web:</Text>
             <View style={styles.previewCard}>
+              {selectedImages.length > 0 && (
+                <Image
+                  source={{ uri: selectedImages[0] }}
+                  style={styles.previewImage}
+                />
+              )}
               <Text style={styles.previewCardTitle}>
                 {form.marketingTitle || 'Título para web...'}
               </Text>
@@ -447,50 +537,92 @@ const styles = StyleSheet.create({
     color: COLORS.BACKGROUND_PRIMARY,
     fontWeight: '600',
   },
-  imageInputContainer: {
+  imageSectionHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
   },
-  removeImageButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.ERROR,
-    alignItems: 'center',
-    justifyContent: 'center',
+  imageGrid: {
+    marginVertical: 8,
   },
-  removeImageText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '300',
+  imageContainer: {
+    position: 'relative',
+    margin: 4,
   },
-  imagePreviewContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginVertical: 12,
-  },
-  imagePreview: {
-    width: 80,
-    height: 80,
+  galleryImage: {
+    width: imageSize,
+    height: imageSize,
     borderRadius: 8,
     backgroundColor: COLORS.BACKGROUND_SECONDARY,
   },
-  addImageButton: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: COLORS.BORDER_COLOR,
-    borderRadius: 8,
-    padding: 16,
+  deleteImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.ERROR,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  addImageText: {
-    color: COLORS.ACCENT,
-    fontSize: 14,
+  deleteImageText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    lineHeight: 16,
+  },
+  addImageButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: COLORS.ACCENT,
+  },
+  addImageButtonText: {
+    color: 'white',
+    fontSize: 12,
     fontWeight: '500',
+  },
+  noImagesContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    borderWidth: 2,
+    borderColor: COLORS.BORDER_COLOR,
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    backgroundColor: COLORS.BACKGROUND_SECONDARY,
+  },
+  noImagesText: {
+    fontSize: 14,
+    color: COLORS.TEXT_TERTIARY,
+    marginBottom: 16,
+  },
+  addFirstImageButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: COLORS.ACCENT,
+  },
+  existingImagesContainer: {
+    marginTop: 8,
+    paddingVertical: 8,
+    backgroundColor: COLORS.BACKGROUND_SECONDARY,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER_COLOR,
+  },
+  existingImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    backgroundColor: COLORS.BACKGROUND_PRIMARY,
   },
   previewSection: {
     marginTop: 20,
@@ -508,6 +640,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.BORDER_COLOR,
+  },
+  previewImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: COLORS.BACKGROUND_SECONDARY,
   },
   previewCardTitle: {
     fontSize: 16,
