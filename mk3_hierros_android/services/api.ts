@@ -1,4 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const API_URL = https://mk3hierros-production.up.railway.app/;
 
 export const categoryService = {
   async getCategories(): Promise<Category[]> {
