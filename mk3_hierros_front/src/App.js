@@ -38,13 +38,15 @@ const ScrollToSection = ({ targetRef }) => {
 
   return null;
 };
+// ... (tus otros imports se mantienen igual)
 
 function App() {
   const mainRef = useRef(null);
 
   return (
     <div className="App">
-      <Router>
+      
+      <Router basename={process.env.PUBLIC_URL}>
         <ScrollToSection targetRef={mainRef} />
         <Hero />
         <main ref={mainRef} className="app-content">
