@@ -1,8 +1,9 @@
 import './App.css';
 import React, { useEffect, useRef } from 'react';
+import { HashRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+
 import Home from './components/Home';
 import OurWork from './components/OurWork';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import ContactUs from './components/ContactUs';
 import Hero from './components/Hero';
 import WorkDetail from './components/workDetail';
@@ -38,15 +39,14 @@ const ScrollToSection = ({ targetRef }) => {
 
   return null;
 };
-// ... (tus otros imports se mantienen igual)
 
 function App() {
   const mainRef = useRef(null);
 
   return (
     <div className="App">
-      
-      <Router basename={process.env.PUBLIC_URL}>
+      {/* Eliminamos el basename para que HashRouter tome la raíz del repo automáticamente */}
+      <Router>
         <ScrollToSection targetRef={mainRef} />
         <Hero />
         <main ref={mainRef} className="app-content">
