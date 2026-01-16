@@ -14,12 +14,12 @@ const WorkDetail = () => {
     const fetchFullDetail = async () => {
       try {
         // 1. Obtenemos los datos del trabajo (título, descripción)
-        const resWork = await fetch(`http://localhost:3000/trabajo/${id}`);
+        const resWork = await fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}`);
         const workData = await resWork.json();
         setWork(workData);
 
         // 2. Obtenemos los metadatos de las imágenes
-        const resImages = await fetch(`http://localhost:3000/trabajo/${id}/images`);
+        const resImages = await fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}/images`);
         const imagesData = await resImages.json();
         setImagesMetadata(imagesData);
       } catch (error) {
@@ -68,7 +68,7 @@ const WorkDetail = () => {
             </button>
             <div className="main-slide">
               <img
-                src={`http://localhost:3000/trabajo/${id}/images/${imagesMetadata[currentIndex].id}`}
+                src={`https://mk3hierros-production.up.railway.app/trabajo/${id}/images/${imagesMetadata[currentIndex].id}`}
                 alt={`Proyecto ${currentIndex + 1}`}
               />
               <span className="counter">

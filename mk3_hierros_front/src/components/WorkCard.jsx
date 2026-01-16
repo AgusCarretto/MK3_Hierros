@@ -11,7 +11,7 @@ const WorkCard = ({ work, isExpanded, onToggle }) => {
     const fetchImageData = async () => {
       try {
         // Llamamos a tu endpoint de metadatos: @Get(':id/images')
-        const response = await fetch(`http://localhost:3000/trabajo/${work.id}/images`);
+        const response = await fetch(`https://mk3hierros-production.up.railway.app/trabajo/${work.id}/images`);
         const images = await response.json();
         
         if (images && images.length > 0) {
@@ -33,7 +33,7 @@ const WorkCard = ({ work, isExpanded, onToggle }) => {
 
   // Construimos la URL apuntando a tu endpoint de descarga de imagen
   const imageUrl = mainImageId 
-    ? `http://localhost:3000/trabajo/${work.id}/images/${mainImageId}`
+    ? `https://mk3hierros-production.up.railway.app/trabajo/${work.id}/images/${mainImageId}`
     : 'https://via.placeholder.com/150'; // Imagen por defecto si no hay fotos
 
   return (

@@ -9,7 +9,7 @@ const OurWork = () => {
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const response = await fetch('http://localhost:3000/trabajo');
+        const response = await fetch('https://mk3hierros-production.up.railway.app');
         const data = await response.json();
         setWorks(data);
       } catch (err) {
