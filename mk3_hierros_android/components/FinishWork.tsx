@@ -54,8 +54,17 @@ export default function FinishWork({
         marketingDescription: work.description,
         categoryId: 0,
       });
+  // ✅ En lugar de limpiar, pre-cargamos las imágenes actuales
+      if (work.images && work.images.length > 0) {
+        const currentImages = work.images.map(img =>
+          workService.getWorkImageUrl(work.id, img.id)
+        );
+        setSelectedImages(currentImages);
+      } else {
+        setSelectedImages([]);
+      }
       // Limpiar imágenes seleccionadas - las imágenes para web se eligen nuevas
-      setSelectedImages([]);
+      //setSelectedImages([]);
     }
   }, [visible, work]);
 
@@ -156,27 +165,33 @@ export default function FinishWork({
     }
 
     try {
-      setFinishing(true);
+        setFinishing(true);
 
-      // Eliminar todas las imágenes existentes antes de subir las nuevas
-      if (work.images && work.images.length > 0) {
-        for (const image of work.images) {
-          await workService.deleteWorkImage(image.id);
+        // 1. Identificar imágenes a borrar del servidor
+        const currentServerImageUrls = work.images.map(img => workService.getWorkImageUrl(work.id, img.id));
+        const imagesToDelete = work.images.filter(img =>
+          !selectedImages.includes(workService.getWorkImageUrl(work.id, img.id))
+        );
+
+        for (const img of imagesToDelete) {
+          await workService.deleteWorkImage(img.id);
         }
-      }
 
-      // Actualizar el trabajo con estado finalizado
-      await workService.updateWorkById(work.id, {
-        status: 'Finalizado',
-        marketingTitle: form.marketingTitle,
-        marketingDescription: form.marketingDescription,
-        categoryId: form.categoryId,
-      });
+        // 2. Identificar solo las fotos NUEVAS (las que no tienen http)
+        const newImagesToUpload = selectedImages.filter(uri => !uri.startsWith('http'));
 
-      // Subir solo las imágenes nuevas seleccionadas para web
-      if (selectedImages.length > 0) {
-        await workService.uploadWorkImages(work.id, selectedImages);
-      }
+        // 3. Actualizar datos de texto
+        await workService.updateWorkById(work.id, {
+          status: 'Finalizado',
+          marketingTitle: form.marketingTitle,
+          marketingDescription: form.marketingDescription,
+          categoryId: form.categoryId,
+        });
+
+        // 4. Subir solo las nuevas
+        if (newImagesToUpload.length > 0) {
+          await workService.uploadWorkImages(work.id, newImagesToUpload);
+        }
 
       Alert.alert(
         'Trabajo Finalizado',
@@ -238,26 +253,7 @@ export default function FinishWork({
             </Text>
           </View>
 
-          {/* Mostrar imágenes existentes del trabajo (solo lectura) */}
-          {work.images && work.images.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.label}>Imágenes del Trabajo (Referencia)</Text>
-              <Text style={styles.hint}>
-                Estas son las imágenes internas del trabajo. No se mostrarán en la web.
-              </Text>
-              <View style={styles.existingImagesContainer}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {work.images.map((image, index) => (
-                    <Image
-                      key={index}
-                      source={{ uri: workService.getWorkImageUrl(work.id, image.id) }}
-                      style={styles.existingImage}
-                    />
-                  ))}
-                </ScrollView>
-              </View>
-            </View>
-          )}
+
 
           {/* Título para marketing */}
           <View style={styles.section}>
