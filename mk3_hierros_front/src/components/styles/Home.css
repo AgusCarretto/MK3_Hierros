@@ -21,7 +21,7 @@
 .section-title-area {
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: clamp(20px, 2.4vw, 26px);
 }
 
 .section-heading {
@@ -118,6 +118,23 @@
   transform: translateY(-6px);
 }
 
+.service-tag:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.service-placeholder {
+  grid-column: 1 / -1;
+  padding: 20px;
+  border: 1px dashed var(--surface-border);
+  border-radius: 16px;
+  text-align: center;
+  letter-spacing: 2px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .home-cta-section {
   padding: 0 6vw clamp(30px, 5vw, 60px);
   display: flex;
@@ -182,13 +199,15 @@
   }
 
   .section-title-area {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(18px, 3vw, 24px);
   }
 
   .section-heading {
     align-items: flex-start;
+    gap: clamp(14px, 3vw, 20px);
   }
 }
 
@@ -206,6 +225,14 @@
 
   .section-heading h2 {
     font-size: 2rem;
+  }
+
+  .section-title-area {
+    gap: clamp(16px, 4vw, 22px);
+  }
+
+  .section-heading {
+    gap: clamp(12px, 4vw, 18px);
   }
 
   .values-row {
