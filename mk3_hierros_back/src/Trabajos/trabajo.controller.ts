@@ -44,6 +44,17 @@ export class TrabajoController {
     return await this.trabajoService.getByCategory(categoryId);
   }
 
+  
+  //GetcategoryFinished de controller. Llamo esta ruta en our work a ver si llama directo con filtro
+  @Get('getByCategoryFinished/:categoryId')
+  async getByCategoryFinished(
+    @Param('categoryId') categoryId: string,
+  ): Promise<Work[]> {
+    return await this.trabajoService.getByCategoryFinished(categoryId);
+  }
+
+
+
   @Get('byPriority/:priority')
   async getByPriority(@Param('priority') priority: Priority): Promise<Work[]> {
     return await this.trabajoService.getByPriority(priority);

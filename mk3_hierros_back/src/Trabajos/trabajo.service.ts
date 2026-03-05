@@ -36,6 +36,17 @@ export class TrabajoService {
     });
   }
 
+//Get category finished services
+  async getByCategoryFinished(categoryId: string): Promise<Work[]> {
+    return await this.repoWork.find({
+      where: { 
+        status: Status.FINISH,
+        category: { id: categoryId } 
+      },
+    });
+  }
+
+
   async getByPriority(priority: Priority): Promise<Work[]> {
     return await this.repoWork.find({ where: { priority } });
   }
