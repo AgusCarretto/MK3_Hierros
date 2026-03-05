@@ -67,7 +67,7 @@ const OurWork = () => {
           "https://mk3hierros-production.up.railway.app/trabajo/byStatus/Finalizado";
 
         if (categoryId) {
-          endpoint = `https://mk3hierros-production.up.railway.app/trabajo/byCategory/${categoryId}`;
+          endpoint = `https://mk3hierros-production.up.railway.app/trabajo/getByCategoryFinished/${categoryId}`;
         }
 
         const response = await fetch(endpoint);
