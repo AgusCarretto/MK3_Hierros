@@ -14,7 +14,7 @@
     "android": {
       "package": "com.agusmateo.mk3hierros",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/celu-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
