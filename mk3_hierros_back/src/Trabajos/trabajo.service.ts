@@ -14,7 +14,6 @@ export class TrabajoService {
   async getAll(): Promise<Work[]> {
     return await this.repoWork.find({
       order: { priority: 'DESC' },
-      relations: ['images'],
     });
   }
 
@@ -36,14 +35,14 @@ export class TrabajoService {
     });
   }
 
-//Get category finished services
-  async getByCategoryFinished(categoryId: string): Promise<Work[]> {
-    return await this.repoWork.find({
-      where: { 
+  async getByCategoryFinished(categoryId: string): Promise<any[]> {
+    const works = await this.repoWork.find({
+      where: {
         status: Status.FINISH,
-        category: { id: categoryId } 
+        category: { id: categoryId },
       },
     });
+    return this.enrichWithPreviewImageId(works);
   }
 
 
@@ -51,8 +50,27 @@ export class TrabajoService {
     return await this.repoWork.find({ where: { priority } });
   }
 
-  async getByStatus(status: Status): Promise<Work[]> {
-    return await this.repoWork.find({ where: { status } });
+  async getByStatus(status: Status): Promise<any[]> {
+    const works = await this.repoWork.find({ where: { status } });
+    return this.enrichWithPreviewImageId(works);
+  }
+
+  private async enrichWithPreviewImageId(works: Work[]): Promise<any[]> {
+    if (works.length === 0) return works;
+    const ids = works.map((w) => w.id);
+    const previews: { workId: string; id: string }[] =
+      await this.repoWork.manager.query(
+        `SELECT DISTINCT ON ("workId") id, "workId"
+         FROM work_images
+         WHERE "workId" = ANY($1)
+         ORDER BY "workId", "order" ASC`,
+        [ids],
+      );
+    const previewMap: Record<string, string> = {};
+    for (const row of previews) {
+      previewMap[row.workId] = row.id;
+    }
+    return works.map((w) => ({ ...w, previewImageId: previewMap[w.id] ?? null }));
   }
 
   async createWork(work: Work): Promise<Work> {
