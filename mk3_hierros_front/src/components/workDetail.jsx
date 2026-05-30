@@ -13,7 +13,7 @@ const WorkDetail = () => {
 
   useEffect(() => {
     const fetchFullDetail = async () => {
-      const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+      const CACHE_TTL = 30 * 60 * 1000; // 30 minutos
       const CACHE_KEY = `mk3_work_detail_${id}_v1`;
 
       const toSafeImage = (image) =>
@@ -60,24 +60,22 @@ const WorkDetail = () => {
       }
 
       try {
-        const resWork = await fetch(
-          `https://mk3hierros-production.up.railway.app/trabajo/${id}`
-        );
+        const [resWork, resImages] = await Promise.all([
+          fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}`),
+          fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}/images`),
+        ]);
 
         if (!resWork.ok) {
           throw new Error("No se pudo obtener el detalle del trabajo");
         }
-
-        const workData = await resWork.json();
-        const resImages = await fetch(
-          `https://mk3hierros-production.up.railway.app/trabajo/${id}/images`
-        );
-
         if (!resImages.ok) {
           throw new Error("No se pudo obtener las imágenes del trabajo");
         }
 
-        const imagesData = await resImages.json();
+        const [workData, imagesData] = await Promise.all([
+          resWork.json(),
+          resImages.json(),
+        ]);
 
         const safeImages = Array.isArray(imagesData)
           ? imagesData.map(toSafeImage).filter(Boolean)

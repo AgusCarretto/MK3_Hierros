@@ -121,7 +121,8 @@ export class TrabajoController {
 
     res.set({
       'Content-Type': imageData.imageMimeType,
-      'Content-Disposition': `inline; filename="${imageData.imageName}"`
+      'Content-Disposition': `inline; filename="${imageData.imageName}"`,
+      'Cache-Control': 'public, max-age=31536000, immutable',
     });
     
     return res.send(imageData.imageData);
