@@ -1,10 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './styles/Hero.css';
 import backgroundImage from '../assets/img/fondoHero.jpg'; // Asegúrate de tener esta imagen en tu carpeta de assets
 import titleImage from '../assets/img/logo-principal_sin_fondo_blanco.png'; // Asegúrate de tener esta imagen en tu carpeta de assets
+import Navbar from './Navbar';
 
 const Hero = () => {
+  const { pathname } = useLocation();
+
+  if (pathname.startsWith('/trabajo/')) {
+    return <Navbar standalone />;
+  }
+
   return (
     <section
       className="hero-section"
@@ -12,25 +19,7 @@ const Hero = () => {
     >
       <div className="hero-overlay" />
 
-      <header className="hero-topbar">
-        <div className="hero-brand">
-          <span className="hero-brand-mark">MK3</span>
-          <span className="hero-brand-tag">Metal Lab</span>
-        </div>
-        <nav>
-          <ul className="hero-nav-links">
-            <li>
-              <Link to="/">Inicio</Link>
-            </li>
-            <li>
-              <Link to="/nuestros-trabajos">Trabajos</Link>
-            </li>
-            <li>
-              <Link to="/contactanos">Contacto</Link>
-            </li>
-          </ul>
-        </nav>
-      </header>
+      <Navbar />
 
       <div className="hero-content glow-panel">
         <span className="hero-pill neon-pill">Herrería de precisión</span>

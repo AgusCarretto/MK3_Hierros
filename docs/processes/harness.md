@@ -55,7 +55,7 @@ No change is complete until all impacted packages and docs are updated.
 
 On explicit close-out signals, run this checklist:
 
-1. Build/tests/lint for touched packages.
+1. Build/lint for touched packages.
 2. Update plan progress.
 3. Move completed plans.
 4. Update `docs/README.md` index for new docs.

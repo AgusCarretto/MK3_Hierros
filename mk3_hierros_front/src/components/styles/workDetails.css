@@ -1,6 +1,6 @@
 .work-detail-page {
   min-height: 100vh;
-  padding: 160px 6vw 140px;
+  padding: 40px 6vw 140px;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
