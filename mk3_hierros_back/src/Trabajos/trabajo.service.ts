@@ -46,6 +46,8 @@ export class TrabajoService {
   }
 
 
+
+
   async getByPriority(priority: Priority): Promise<Work[]> {
     return await this.repoWork.find({ where: { priority } });
   }

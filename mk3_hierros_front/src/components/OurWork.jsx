@@ -6,10 +6,10 @@ import WorkCard from "./WorkCard";
 const OurWork = () => {
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const location = useLocation();
   const [categoryName, setCategoryName] = useState("");
   const [loadError, setLoadError] = useState(false);
+
+  const location = useLocation();
 
   useEffect(() => {
     const fetchWorks = async () => {
@@ -18,7 +18,6 @@ const OurWork = () => {
       const categoryLabel = params.get("nombre");
 
       let readableName = "";
-
       if (categoryLabel) {
         try {
           readableName = decodeURIComponent(categoryLabel);
@@ -37,6 +36,7 @@ const OurWork = () => {
 
       let cachedWorks = null;
 
+      // 1. Intentar cargar del caché primero
       if (typeof window !== "undefined") {
         try {
           const cachedRaw = localStorage.getItem(cacheKey);
@@ -62,9 +62,9 @@ const OurWork = () => {
 
       setLoading(!cachedWorks);
 
+      // 2. Hacer el fetch al backend de MK3 Hierros
       try {
-        let endpoint =
-          "https://mk3hierros-production.up.railway.app/trabajo/byStatus/Finalizado";
+        let endpoint = "https://mk3hierros-production.up.railway.app/trabajo/byStatus/Finalizado";
 
         if (categoryId) {
           endpoint = `https://mk3hierros-production.up.railway.app/trabajo/getByCategoryFinished/${categoryId}`;
@@ -77,9 +77,10 @@ const OurWork = () => {
         }
 
         const data = await response.json();
-        const finalised = categoryId
-          ? data.filter((work) => work.status === "Finalizado")
-          : data;
+        
+        // FILTRO DEFENSIVO: Forzamos el filtro siempre, sin importar si hay categoría o no.
+        // Nota: Asegúrate de que la propiedad sea 'status' y no 'estado'.
+        const finalised = data.filter((work) => work.status === "Finalizado");
 
         setWorks(finalised);
         setLoadError(false);
@@ -125,16 +126,12 @@ const OurWork = () => {
       {loadError ? (
         <div className="empty-state glow-panel">
           <span className="empty-state-badge">Hubo un inconveniente</span>
-          <h3>
-            Intenta actualizar la página para volver a cargar los trabajos.
-          </h3>
+          <h3>Intenta actualizar la página para volver a cargar los trabajos.</h3>
         </div>
       ) : works.length === 0 ? (
         <div className="empty-state glow-panel">
           <span className="empty-state-badge">Taller en marcha</span>
-          <h3>
-            Se están forjando nuevos trabajos, regresa pronto para poder verlos.
-          </h3>
+          <h3>Se están forjando nuevos trabajos, regresa pronto para poder verlos.</h3>
         </div>
       ) : (
         <div className="works-minimal-grid glow-panel">
