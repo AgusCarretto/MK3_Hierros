@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Home.css";
+import LoadingOverlay from "./LoadingOverlay";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -84,6 +85,12 @@ const Home = () => {
       goToCategory(category);
     }
   };
+
+  if (loadingCategories) {
+    return (
+      <LoadingOverlay message="Cargando categorías del portafolio…" />
+    );
+  }
 
   return (
     <main className="home-container">

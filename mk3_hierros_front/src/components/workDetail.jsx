@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./styles/workDetails.css";
+import LoadingOverlay from "./LoadingOverlay";
 
 const WorkDetail = () => {
   const { id } = useParams();
@@ -146,8 +147,7 @@ const WorkDetail = () => {
     );
   };
 
-  if (loading)
-    return <div className="detail-loading">Cargando proyecto...</div>;
+  if (loading) return <LoadingOverlay message="Cargando detalle del proyecto…" />;
   if (loadError) {
     return (
       <div className="detail-error">

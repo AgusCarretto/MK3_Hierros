@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./styles/OurWork.css";
+import LoadingOverlay from "./LoadingOverlay";
 import WorkCard from "./WorkCard";
 
 const OurWork = () => {
@@ -106,7 +107,10 @@ const OurWork = () => {
   }, [location.search]);
 
   if (loading) {
-    return <div className="loader-minimal">Cargando trabajos...</div>;
+    const loadingMessage = categoryName
+      ? `Cargando trabajos en ${categoryName}…`
+      : "Cargando trabajos finalizados…";
+    return <LoadingOverlay message={loadingMessage} />;
   }
 
   return (
