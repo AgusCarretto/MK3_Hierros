@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/MK3_Hierros/static/css/main.283bc6ee.css",
-    "main.js": "/MK3_Hierros/static/js/main.7cf625ef.js",
+    "main.js": "/MK3_Hierros/static/js/main.23c9be78.js",
     "static/js/453.66a97b4e.chunk.js": "/MK3_Hierros/static/js/453.66a97b4e.chunk.js",
     "static/media/fondoHero.jpg": "/MK3_Hierros/static/media/fondoHero.b3f9ba1c89c960b54c24.jpg",
     "static/media/logo-principal_sin_fondo_blanco.png": "/MK3_Hierros/static/media/logo-principal_sin_fondo_blanco.3c95453b3ec4867de395.png",
     "index.html": "/MK3_Hierros/index.html",
     "main.283bc6ee.css.map": "/MK3_Hierros/static/css/main.283bc6ee.css.map",
-    "main.7cf625ef.js.map": "/MK3_Hierros/static/js/main.7cf625ef.js.map",
+    "main.23c9be78.js.map": "/MK3_Hierros/static/js/main.23c9be78.js.map",
     "453.66a97b4e.chunk.js.map": "/MK3_Hierros/static/js/453.66a97b4e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.283bc6ee.css",
-    "static/js/main.7cf625ef.js"
+    "static/js/main.23c9be78.js"
   ]
 }
