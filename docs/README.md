@@ -31,11 +31,13 @@ Type tags:
 
 - `docs/processes/harness.md` - operating manual. Tags: `#process` `#ai-harness`
 - `docs/processes/dev-setup.md` - local setup and commands. Tags: `#process` `#monorepo`
+- `docs/processes/spec-kit.md` - how spec-kit skills map to harness phases and artifacts. Tags: `#process` `#ai-harness`
 
 ## Decisions
 
 - `docs/decisions/001-harness-design.md` - harness decision record. Tags: `#decision` `#ai-harness`
 - `docs/decisions/002-session-exit.md` - session close-out decision. Tags: `#decision` `#process`
+- `docs/decisions/003-spec-kit-integration.md` - spec-kit integrated as a harness-governed tool. Tags: `#decision` `#ai-harness`
 
 ## Architecture views
 
@@ -44,6 +46,12 @@ Type tags:
 ## Deployment context
 
 - `docs/processes/dev-setup.md` - deployment targets and deployment-aware checks. Tags: `#process` `#railway` `#github-pages`
+
+## Tooling
+
+- `.specify/memory/constitution.md` - spec-kit constitution, mirrors `AGENTS.md`/`ARCHITECTURE.md`/`docs/decisions/`. Tags: `#process` `#ai-harness`
+- `.claude/skills/speckit-*` - spec-kit skills for Claude Code (specify, clarify, plan, tasks, analyze, checklist, implement). Tags: `#ai-harness`
+- `specs/<slug>/` - spec-kit working drafts (spec.md, plan.md, tasks.md) per feature; not authoritative, see `docs/processes/spec-kit.md`. Tags: `#ai-harness`
 
 ## Templates
 
