@@ -18,6 +18,16 @@ This repository contains three deliverables that must be treated as one system:
 
 Agents must evaluate impact across all three projects whenever a change touches shared domain concepts (work status, categories, images, API contracts).
 
+## Tooling
+
+GitHub spec-kit is installed (`specify-cli`, skills in `.claude/skills/speckit-*`) as a drafting tool for this harness, not a replacement for it. See `docs/processes/spec-kit.md` for the full phase-to-command mapping and `docs/decisions/003-spec-kit-integration.md` for the rationale.
+
+- `speckit-specify` / `speckit-clarify` support the Investigation phase, but the artifact that satisfies the gate is still `docs/analysis/*.md`.
+- `speckit-plan` / `speckit-tasks` support the Plan phase, but the artifact that satisfies the gate is still the ExecPlan in `docs/exec-plans/active/*.md` under the `docs/PLANS.md` contract.
+- `speckit-analyze` supports Findings review; it does not produce an authoritative artifact.
+- `speckit-implement` (Execution) must not run before the corresponding ExecPlan has `status: approved`.
+- If `specs/<slug>/plan.md` and the ExecPlan disagree, the ExecPlan wins.
+
 ## Session bootstrap
 
 Before proposing code changes:

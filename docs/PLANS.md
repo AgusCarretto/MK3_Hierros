@@ -35,6 +35,10 @@ If a plan is feature-less, set:
 11. Progress
 12. Outcomes and retrospective
 
+## Sourcing from spec-kit
+
+An ExecPlan may be drafted starting from spec-kit's `specs/<slug>/plan.md` and `tasks.md` (see `docs/processes/spec-kit.md`). This does not change the contract above: the frontmatter and the 12 required sections still apply, and this file, not `specs/<slug>/plan.md`, is what the phase gates check.
+
 ## Lifecycle
 
 - New plans start in `docs/exec-plans/active/`.

@@ -33,6 +33,19 @@ Phases do not merge. Do not skip gates silently.
 - No analysis without bootstrap.
 - On completion, move plan to completed and sync docs.
 
+## Tooling: spec-kit inside the phases
+
+GitHub spec-kit (`.claude/skills/speckit-*`) is available as the drafting tool for Investigation and Plan. It does not change the gates: the artifact that satisfies each gate is still the one in `docs/`. See `docs/processes/spec-kit.md` for details.
+
+| Phase | spec-kit skill | Gate-satisfying artifact |
+|---|---|---|
+| Investigation | `speckit-specify`, `speckit-clarify` | `docs/analysis/*.md` |
+| Findings review | `speckit-analyze` | none (validation only) |
+| Plan | `speckit-plan`, `speckit-tasks` | `docs/exec-plans/active/*.md` (`docs/PLANS.md` contract) |
+| Execution | `speckit-implement` | only after the ExecPlan has `status: approved` |
+
+If `specs/<slug>/plan.md` (spec-kit) and the ExecPlan disagree, the ExecPlan wins.
+
 ## Artifact paths
 
 - Analysis: `docs/analysis/`
