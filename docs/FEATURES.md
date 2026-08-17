@@ -15,6 +15,7 @@ Canonical list of user-visible behaviors.
 | ID | Behavior | Verify | State | Source | Notes |
 |---|---|---|---|---|---|
 | feat-004 | Al navegar a `/trabajo/:id` el Hero de presentación no se muestra; solo navbar + contenido del trabajo | `cd mk3_hierros_front && npm test` | active | exec-plan front-001 | Ver `docs/exec-plans/active/2026-05-30_front-001_hide-hero-on-work-detail.md`. Generalizado por front-002: el Hero ahora solo se muestra en `/`. |
+| feat-006 | La grilla de "Nuestros Trabajos" carga miniaturas livianas (no la foto original) por card; el detalle/carrusel sigue mostrando resolución completa | `cd mk3_hierros_back && npm run build && cd ../mk3_hierros_front && npm run build` | active | exec-plan perf-002 | Ver `docs/exec-plans/active/2026-08-17_perf-002_works-image-thumbnails.md` |
 
 ## Blocked
 

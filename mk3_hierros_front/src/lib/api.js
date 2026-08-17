@@ -12,6 +12,12 @@ export function workImageUrl(workId, imageId) {
   return `${API_BASE_URL}/trabajo/${workId}/images/${imageId}`;
 }
 
+// Miniatura liviana (~480px, ~15% del peso original) para grillas/listas.
+// La resolución completa (workImageUrl) queda reservada para el detalle/carrusel.
+export function workThumbnailUrl(workId, imageId) {
+  return `${API_BASE_URL}/trabajo/${workId}/images/${imageId}/thumbnail`;
+}
+
 export function getCategories() {
   return fetchJson("/categorias");
 }
