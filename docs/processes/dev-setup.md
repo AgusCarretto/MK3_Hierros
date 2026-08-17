@@ -23,11 +23,13 @@ Backend:
 - Test: `cd mk3_hierros_back && npm test`
 - Lint: `cd mk3_hierros_back && npm run lint`
 
-Frontend:
+Frontend (Vite):
 
-- Dev: `cd mk3_hierros_front && npm start`
+- Dev: `cd mk3_hierros_front && npm run dev`
 - Build: `cd mk3_hierros_front && npm run build`
-- Test: `cd mk3_hierros_front && npm test -- --watchAll=false`
+- Preview build: `cd mk3_hierros_front && npm run preview`
+- Test: `cd mk3_hierros_front && npm test`
+- Lint: `cd mk3_hierros_front && npm run lint`
 
 Android:
 

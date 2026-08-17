@@ -1,75 +1,25 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./styles/Home.css";
-import LoadingOverlay from "./LoadingOverlay";
+import { motion } from "motion/react";
+import { ArrowRight, Hammer } from "lucide-react";
+import { getCategories } from "../lib/api";
+import { useCachedFetch } from "../hooks/useCachedFetch";
+import { CategoryGridSkeleton } from "./Skeletons";
+import { EmptyState } from "./EmptyState";
+import { Button } from "./ui/Button";
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 
 const Home = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [categoryError, setCategoryError] = useState(false);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const CACHE_KEY = "mk3_categories_cache_v1";
-      const CACHE_TTL = 60 * 60 * 1000; // 1 hora
-      let cachedCategories = null;
-
-      if (typeof window !== "undefined") {
-        try {
-          const cachedRaw = localStorage.getItem(CACHE_KEY);
-          if (cachedRaw) {
-            const parsed = JSON.parse(cachedRaw);
-            const isValid =
-              parsed &&
-              Array.isArray(parsed.data) &&
-              typeof parsed.timestamp === "number" &&
-              Date.now() - parsed.timestamp < CACHE_TTL;
-
-            if (isValid) {
-              cachedCategories = parsed.data;
-              setCategories(parsed.data);
-              setCategoryError(false);
-            } else {
-              localStorage.removeItem(CACHE_KEY);
-            }
-          }
-        } catch (error) {
-          console.warn("No se pudo leer el cache de categorías", error);
-        }
-      }
-
-      setLoadingCategories(!cachedCategories);
-
-      try {
-        const response = await fetch(
-          "https://mk3hierros-production.up.railway.app/categorias"
-        );
-        if (!response.ok) {
-          throw new Error("Error al obtener categorías");
-        }
-        const data = await response.json();
-        setCategories(data);
-        setCategoryError(false);
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({ timestamp: Date.now(), data })
-          );
-        }
-      } catch (error) {
-        console.error("No se pudieron cargar las categorías", error);
-        if (!cachedCategories) {
-          setCategoryError(true);
-        }
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const {
+    data: categories,
+    loading,
+    error,
+    retry,
+  } = useCachedFetch("mk3_categories_cache_v1", getCategories);
 
   const goToCategory = (category) => {
     navigate(
@@ -79,106 +29,121 @@ const Home = () => {
     );
   };
 
-  const handleCategoryKeyDown = (event, category) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      goToCategory(category);
-    }
-  };
-
-  if (loadingCategories) {
-    return (
-      <LoadingOverlay message="Cargando categorías del portafolio…" />
-    );
-  }
-
   return (
-    <main className="home-container">
-      {/* SECCIÓN SOBRE NOSOTROS */}
-      <section className="home-section glow-panel">
-        <div className="section-title-area">
+    <main className="mx-auto flex max-w-6xl flex-col gap-16 px-[6vw] py-20">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className="glow-panel flex flex-col gap-8 p-8 sm:p-12 lg:flex-row"
+      >
+        <div className="flex shrink-0 items-start gap-5">
           <span className="section-number">01</span>
-          <div className="section-heading">
-            <span className="section-label neon-pill">Sobre Nosotros</span>
-            <h2>Soluciones en hierro a medida</h2>
+          <div className="flex flex-col gap-3">
+            <span className="neon-pill">Sobre Nosotros</span>
+            <h2 className="max-w-sm text-2xl text-text-primary sm:text-3xl">
+              Soluciones en hierro a medida
+            </h2>
           </div>
         </div>
-        <div className="section-text-area">
-          <p className="highlight-text">
-            En <strong>MK3 Soluciones en Hierro</strong>, transformamos la
-            materia prima en piezas de precisión. Combinamos la robustez del
-            hierro con diseños funcionales y modernos.
+        <div className="flex flex-col gap-5 text-text-muted">
+          <p className="text-base leading-relaxed text-text-primary/90">
+            En <strong className="text-text-primary">MK3 Soluciones en Hierro</strong>,
+            transformamos la materia prima en piezas de precisión. Combinamos
+            la robustez del hierro con diseños funcionales y modernos.
           </p>
-          <p>
+          <p className="text-sm leading-relaxed">
             Somos especialistas en trabajos a medida, ofreciendo soluciones
             creativas para cada proyecto. Nuestro compromiso reside en la
-            durabilidad, la técnica artesanal y la total satisfacción de quienes
-            confían en nuestro taller.
+            durabilidad, la técnica artesanal y la total satisfacción de
+            quienes confían en nuestro taller.
           </p>
-          <div className="values-row">
-            <span>/ CALIDAD</span>
-            <span>/ DISEÑO</span>
-            <span>/ RESISTENCIA</span>
+          <div className="flex flex-wrap gap-4 pt-2 text-xs uppercase tracking-[3px] text-accent">
+            <span>/ Calidad</span>
+            <span>/ Diseño</span>
+            <span>/ Resistencia</span>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* SECCIÓN SERVICIOS */}
-      <section className="home-section glow-panel">
-        <div className="section-title-area">
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className="glow-panel flex flex-col gap-8 p-8 sm:p-12"
+      >
+        <div className="flex items-start gap-5">
           <span className="section-number">02</span>
-          <div className="section-heading">
-            <span className="section-label neon-pill">Servicios</span>
-            <h2>Nuestro laboratorio metalúrgico</h2>
+          <div className="flex flex-col gap-3">
+            <span className="neon-pill">Servicios</span>
+            <h2 className="text-2xl text-text-primary sm:text-3xl">
+              Nuestro laboratorio metalúrgico
+            </h2>
           </div>
         </div>
-        <div className="section-text-area">
-          <div className="services-grid">
-            {loadingCategories ? (
-              <div className="service-placeholder">Cargando categorías...</div>
-            ) : categoryError ? (
-              <div className="service-placeholder">
-                No pudimos cargar las categorías.
-              </div>
-            ) : categories.length > 0 ? (
-              categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="service-tag"
-                  onClick={() => goToCategory(category)}
-                  onKeyDown={(event) => handleCategoryKeyDown(event, category)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  {category.name}
-                </div>
-              ))
-            ) : (
-              <div className="service-placeholder">
-                No hay categorías disponibles por el momento.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
-      {/* SECCIÓN CALL TO ACTION (CTA) */}
-      <section className="home-cta-section">
-        <div className="cta-card glow-panel">
-          <span className="cta-subtitle neon-pill">¿Tenés un proyecto?</span>
-          <h3 className="cta-title">Llevamos tus ideas al plano real</h3>
-          <p className="cta-text">
+        {loading ? (
+          <CategoryGridSkeleton />
+        ) : error ? (
+          <EmptyState
+            title="No pudimos cargar las categorías"
+            description="Revisá tu conexión e intentá de nuevo."
+            actionLabel="Reintentar"
+            onAction={retry}
+          />
+        ) : categories?.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {categories.map((category, index) => (
+              <motion.button
+                key={category.id}
+                type="button"
+                onClick={() => goToCategory(category)}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: index * 0.04 }}
+                whileHover={{ y: -3 }}
+                className="rounded-2xl border border-surface-border bg-white/[0.03] px-4 py-3.5 text-left text-sm text-text-primary transition-colors hover:border-accent/50 hover:bg-accent-soft hover:text-accent"
+              >
+                {category.name}
+              </motion.button>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Hammer}
+            title="Sin categorías por el momento"
+            description="Estamos organizando el catálogo de servicios."
+          />
+        )}
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.4 }}
+        variants={fadeInUp}
+      >
+        <div className="glow-panel flex flex-col items-center gap-4 px-8 py-14 text-center sm:px-16">
+          <span className="neon-pill">¿Tenés un proyecto?</span>
+          <h3 className="max-w-lg text-2xl text-text-primary sm:text-3xl">
+            Llevamos tus ideas al plano real
+          </h3>
+          <p className="max-w-md text-sm text-text-muted">
             Calidad técnica y diseño industrial para soluciones duraderas en
             hierro.
           </p>
-          <button
-            className="btn-contact"
+          <Button
+            variant="primary"
+            className="mt-2"
             onClick={() => navigate("/contactanos")}
           >
-            Hablemos ahora
-          </button>
+            Hablemos ahora <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Button>
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 };
