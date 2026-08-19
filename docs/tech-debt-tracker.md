@@ -4,7 +4,7 @@
 
 | ID | Date | Area | Description | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| td-001 | 2026-08-19 | mk3_hierros_back | `TypeOrmModule.forRootAsync` en `app.module.ts` tiene `synchronize: true` sin guard por entorno (el comentario en el código dice "esto no se usa en producción" pero es el mismo config siempre). Cualquier boot del backend — local o en Railway — con entities que difieran del schema real dispara ALTER/CREATE automáticos, sin sistema de migraciones formal. | open | backend | Riesgo confirmado real durante la validación de perf-002 (boot local contra Postgres de producción vía proxy). Se mitigó ad-hoc verificando `git diff main...HEAD -- src/Entity/` antes de bootear, pero no hay protección estructural. Reemplazar por migraciones formales o al menos condicionar `synchronize` a `NODE_ENV !== 'production'`. |
+| td-001 | 2026-08-19 | mk3_hierros_back | `TypeOrmModule.forRootAsync` en `app.module.ts` tenía `synchronize: true` sin guard por entorno (el comentario en el código decía "esto no se usa en producción" pero era el mismo config siempre). Cualquier boot del backend — local o en Railway — con entities que difirieran del schema real disparaba ALTER/CREATE automáticos, sin sistema de migraciones formal. | mitigated | backend | Riesgo confirmado real durante la validación de perf-002 (boot local contra Postgres de producción vía proxy). Mitigado en `back-001` (`docs/exec-plans/completed/2026-08-19_back-001_guard-typeorm-synchronize.md`): `synchronize` ahora requiere `DB_SYNCHRONIZE=true` explícito (default `false`, seguro). El fix de fondo — reemplazar `synchronize` por un sistema de migraciones formal — sigue abierto, ver td-004. |
 
 ## Medium
 
@@ -17,3 +17,4 @@
 
 | ID | Date | Area | Description | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
+| td-004 | 2026-08-19 | mk3_hierros_back | No hay sistema de migraciones formal (`typeorm migration:generate`/`migration:run`); el schema se mantiene solo con `synchronize` (ahora opt-in vía `DB_SYNCHRONIZE`, ver td-001). | open | backend | Fix de fondo identificado como Option C en `docs/analysis/2026-08-19_synchronize-true-guard.md`, deliberadamente fuera de alcance de `back-001` por superficie de cambio grande (migración inicial que capture el schema real de prod, DataSource de CLI, paso de deploy en Railway). Encarar con su propio análisis/plan cuando el volumen de cambios de schema lo justifique. |
