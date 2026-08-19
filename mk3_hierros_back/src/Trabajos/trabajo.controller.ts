@@ -44,7 +44,6 @@ export class TrabajoController {
     return await this.trabajoService.getByCategory(categoryId);
   }
 
-  
   //GetcategoryFinished de controller. Llamo esta ruta en our work a ver si llama directo con filtro
   @Get('getByCategoryFinished/:categoryId')
   async getByCategoryFinished(
@@ -52,8 +51,6 @@ export class TrabajoController {
   ): Promise<Work[]> {
     return await this.trabajoService.getByCategoryFinished(categoryId);
   }
-
-
 
   @Get('byPriority/:priority')
   async getByPriority(@Param('priority') priority: Priority): Promise<Work[]> {
@@ -91,16 +88,25 @@ export class TrabajoController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     if (!files || files.length === 0) {
-      throw new HttpException('No se proporcionaron imágenes', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'No se proporcionaron imágenes',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Validar archivos
     for (const file of files) {
       if (!file.mimetype.startsWith('image/')) {
-        throw new HttpException(`${file.originalname} no es una imagen válida`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          `${file.originalname} no es una imagen válida`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
       if (file.size > 5 * 1024 * 1024) {
-        throw new HttpException(`${file.originalname} supera los 5MB`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          `${file.originalname} supera los 5MB`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
     }
 
@@ -109,12 +115,9 @@ export class TrabajoController {
 
   // Obtener imagen específica
   @Get(':id/images/:imageId')
-  async getWorkImage(
-    @Param('imageId') imageId: string,
-    @Res() res: Response
-  ) {
+  async getWorkImage(@Param('imageId') imageId: string, @Res() res: Response) {
     const imageData = await this.workImageService.getImageById(imageId);
-    
+
     if (!imageData) {
       return res.status(404).send('Imagen no encontrada');
     }
@@ -124,8 +127,29 @@ export class TrabajoController {
       'Content-Disposition': `inline; filename="${imageData.imageName}"`,
       'Cache-Control': 'public, max-age=31536000, immutable',
     });
-    
+
     return res.send(imageData.imageData);
+  }
+
+  // Miniatura liviana para grillas/listas (resolución completa queda en
+  // GET :id/images/:imageId, usada por el detalle/carrusel).
+  @Get(':id/images/:imageId/thumbnail')
+  async getWorkImageThumbnail(
+    @Param('imageId') imageId: string,
+    @Res() res: Response,
+  ) {
+    const thumbnail = await this.workImageService.getThumbnailById(imageId);
+
+    if (!thumbnail) {
+      return res.status(404).send('Imagen no encontrada');
+    }
+
+    res.set({
+      'Content-Type': 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    });
+
+    return res.send(thumbnail);
   }
 
   // Obtener metadatos de imágenes

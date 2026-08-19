@@ -23,11 +23,15 @@ Backend:
 - Test: `cd mk3_hierros_back && npm test`
 - Lint: `cd mk3_hierros_back && npm run lint`
 
-Frontend:
+`mk3_hierros_back` necesita un `.env` local (no versionado) con `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` (ver `.env.example`). No hay sistema de migraciones: para que TypeORM cree/actualice las tablas localmente hace falta además `DB_SYNCHRONIZE=true`. Sin esa variable (el default), el backend arranca pero no toca el schema — es el comportamiento seguro por default, pensado para no alterar sin querer una base compartida (ver `docs/tech-debt-tracker.md` td-001 y `docs/analysis/2026-08-19_synchronize-true-guard.md`).
 
-- Dev: `cd mk3_hierros_front && npm start`
+Frontend (Vite):
+
+- Dev: `cd mk3_hierros_front && npm run dev`
 - Build: `cd mk3_hierros_front && npm run build`
-- Test: `cd mk3_hierros_front && npm test -- --watchAll=false`
+- Preview build: `cd mk3_hierros_front && npm run preview`
+- Test: `cd mk3_hierros_front && npm test`
+- Lint: `cd mk3_hierros_front && npm run lint`
 
 Android:
 

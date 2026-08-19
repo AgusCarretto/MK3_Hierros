@@ -1,7 +1,0 @@
-/* Standalone navbar — used on routes that don't render the full Hero section */
-.navbar-standalone {
-  background: var(--surface-bg, #050507);
-  padding: 20px 6vw;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--surface-border);
-}

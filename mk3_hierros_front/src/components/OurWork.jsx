@@ -1,146 +1,86 @@
-import React, { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import "./styles/OurWork.css";
-import LoadingOverlay from "./LoadingOverlay";
+import { motion } from "motion/react";
+import { Hammer } from "lucide-react";
+import { getFinishedWorks } from "../lib/api";
+import { useCachedFetch } from "../hooks/useCachedFetch";
+import { WorkGridSkeleton } from "./Skeletons";
+import { EmptyState } from "./EmptyState";
 import WorkCard from "./WorkCard";
 
 const OurWork = () => {
-  const [works, setWorks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [categoryName, setCategoryName] = useState("");
-  const [loadError, setLoadError] = useState(false);
-
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchWorks = async () => {
-      const params = new URLSearchParams(location.search);
-      const categoryId = params.get("categoria");
-      const categoryLabel = params.get("nombre");
-
-      let readableName = "";
-      if (categoryLabel) {
-        try {
-          readableName = decodeURIComponent(categoryLabel);
-        } catch (error) {
-          readableName = categoryLabel;
-        }
-      }
-
-      setCategoryName(readableName);
-      setLoadError(false);
-
-      const CACHE_TTL = 60 * 60 * 1000; // 1 hora
-      const cacheKey = categoryId
-        ? `mk3_works_category_${categoryId}_v1`
-        : "mk3_works_finalizados_v1";
-
-      let cachedWorks = null;
-
-      // 1. Intentar cargar del caché primero
-      if (typeof window !== "undefined") {
-        try {
-          const cachedRaw = localStorage.getItem(cacheKey);
-          if (cachedRaw) {
-            const parsed = JSON.parse(cachedRaw);
-            const isValid =
-              parsed &&
-              Array.isArray(parsed.data) &&
-              typeof parsed.timestamp === "number" &&
-              Date.now() - parsed.timestamp < CACHE_TTL;
-
-            if (isValid) {
-              cachedWorks = parsed.data;
-              setWorks(parsed.data);
-            } else {
-              localStorage.removeItem(cacheKey);
-            }
-          }
-        } catch (error) {
-          console.warn("No se pudo leer el cache de trabajos", error);
-        }
-      }
-
-      setLoading(!cachedWorks);
-
-      // 2. Hacer el fetch al backend de MK3 Hierros
+  const { categoryId, categoryName } = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get("categoria");
+    const rawName = params.get("nombre");
+    let name = "";
+    if (rawName) {
       try {
-        let endpoint = "https://mk3hierros-production.up.railway.app/trabajo/byStatus/Finalizado";
-
-        if (categoryId) {
-          endpoint = `https://mk3hierros-production.up.railway.app/trabajo/getByCategoryFinished/${categoryId}`;
-        }
-
-        const response = await fetch(endpoint);
-
-        if (!response.ok) {
-          throw new Error("Error al obtener trabajos");
-        }
-
-        const data = await response.json();
-        
-        // FILTRO DEFENSIVO: Forzamos el filtro siempre, sin importar si hay categoría o no.
-        // Nota: Asegúrate de que la propiedad sea 'status' y no 'estado'.
-        const finalised = data.filter((work) => work.status === "Finalizado");
-
-        setWorks(finalised);
-        setLoadError(false);
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            cacheKey,
-            JSON.stringify({ timestamp: Date.now(), data: finalised })
-          );
-        }
-      } catch (error) {
-        console.error("No se pudieron cargar los trabajos", error);
-        if (!cachedWorks) {
-          setWorks([]);
-          setLoadError(true);
-        }
-      } finally {
-        setLoading(false);
+        name = decodeURIComponent(rawName);
+      } catch {
+        name = rawName;
       }
-    };
-
-    fetchWorks();
+    }
+    return { categoryId: id, categoryName: name };
   }, [location.search]);
 
-  if (loading) {
-    const loadingMessage = categoryName
-      ? `Cargando trabajos en ${categoryName}…`
-      : "Cargando trabajos finalizados…";
-    return <LoadingOverlay message={loadingMessage} />;
-  }
+  const cacheKey = categoryId
+    ? `mk3_works_category_${categoryId}_v1`
+    : "mk3_works_finalizados_v1";
+
+  const {
+    data: works,
+    loading,
+    error,
+    retry,
+  } = useCachedFetch(cacheKey, () => getFinishedWorks(categoryId), {
+    ttl: 60 * 60 * 1000,
+  });
 
   return (
-    <section className="our-work-section">
-      <div className="header-container">
-        <span className="subtitle neon-pill">Portafolio en evolución</span>
-        <h2 className="title-minimal">
+    <section className="mx-auto flex max-w-6xl flex-col gap-10 px-[6vw] py-20">
+      <div className="flex flex-col gap-3">
+        <span className="neon-pill self-start">Portafolio en evolución</span>
+        <h2 className="text-2xl text-text-primary sm:text-3xl">
           {categoryName ? `Trabajos en ${categoryName}` : "Nuestros Trabajos"}
         </h2>
-        <p className="section-description">
+        <p className="max-w-xl text-sm text-text-muted">
           {categoryName
             ? "Mostramos los proyectos finalizados de la categoría seleccionada."
-            : "Explora los trabajos finalizados que ya forman parte de nuestro taller."}
+            : "Explorá los trabajos finalizados que ya forman parte de nuestro taller."}
         </p>
       </div>
 
-      {loadError ? (
-        <div className="empty-state glow-panel">
-          <span className="empty-state-badge">Hubo un inconveniente</span>
-          <h3>Intenta actualizar la página para volver a cargar los trabajos.</h3>
-        </div>
-      ) : works.length === 0 ? (
-        <div className="empty-state glow-panel">
-          <span className="empty-state-badge">Taller en marcha</span>
-          <h3>Se están forjando nuevos trabajos, regresa pronto para poder verlos.</h3>
-        </div>
+      {loading ? (
+        <WorkGridSkeleton />
+      ) : error ? (
+        <EmptyState
+          title="Hubo un inconveniente"
+          description="Intenta actualizar la página para volver a cargar los trabajos."
+          actionLabel="Reintentar"
+          onAction={retry}
+        />
+      ) : works?.length === 0 ? (
+        <EmptyState
+          icon={Hammer}
+          badge="Taller en marcha"
+          title="Se están forjando nuevos trabajos"
+          description="Regresá pronto para poder verlos."
+        />
       ) : (
-        <div className="works-minimal-grid glow-panel">
-          {works.map((work) => (
-            <WorkCard key={work.id} work={work} />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {works.map((work, index) => (
+            <motion.div
+              key={work.id}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.05 }}
+            >
+              <WorkCard work={work} />
+            </motion.div>
           ))}
         </div>
       )}

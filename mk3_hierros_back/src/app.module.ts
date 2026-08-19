@@ -31,7 +31,7 @@ import { WorkImageService } from './Trabajos/workImage.service';
           password: configService.get<string>('PGPASSWORD'),
           database: configService.get<string>('PGDATABASE'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: true, // Esto no se usa en producción.
+          synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
         };
       },
     }),

@@ -1,209 +1,158 @@
-import React, { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./styles/workDetails.css";
-import LoadingOverlay from "./LoadingOverlay";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronLeft, ChevronRight, ArrowLeft, ImageOff } from "lucide-react";
+import { getWorkDetail, workImageUrl } from "../lib/api";
+import { useCachedFetch } from "../hooks/useCachedFetch";
+import { WorkDetailSkeleton } from "./Skeletons";
+import { EmptyState } from "./EmptyState";
+import { Tooltip } from "./ui/Tooltip";
 
 const WorkDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [work, setWork] = useState(null);
-  const [imagesMetadata, setImagesMetadata] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+
+  const {
+    data,
+    loading,
+    error,
+    retry,
+  } = useCachedFetch(`mk3_work_detail_${id}_v1`, () => getWorkDetail(id), {
+    ttl: 30 * 60 * 1000,
+  });
+
+  const work = data?.work ?? null;
+  const images = data?.images ?? [];
 
   useEffect(() => {
-    const fetchFullDetail = async () => {
-      const CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-      const CACHE_KEY = `mk3_work_detail_${id}_v1`;
-
-      const toSafeImage = (image) =>
-        image && image.id
-          ? {
-              id: image.id,
-              imageName: image.imageName ?? null,
-              imageMimeType: image.imageMimeType ?? null,
-            }
-          : null;
-
-      let cachedEntry = null;
-
-      if (typeof window !== "undefined") {
-        try {
-          const cachedRaw = localStorage.getItem(CACHE_KEY);
-          if (cachedRaw) {
-            const parsed = JSON.parse(cachedRaw);
-            const isValid =
-              parsed &&
-              typeof parsed.timestamp === "number" &&
-              Date.now() - parsed.timestamp < CACHE_TTL &&
-              parsed.work &&
-              Array.isArray(parsed.images);
-
-            if (isValid) {
-              cachedEntry = parsed;
-              setWork(parsed.work);
-              setImagesMetadata(parsed.images);
-              setLoading(false);
-              setLoadError(false);
-            } else {
-              localStorage.removeItem(CACHE_KEY);
-            }
-          }
-        } catch (error) {
-          console.warn("No se pudo leer el cache de detalle", error);
-        }
-      }
-
-      if (!cachedEntry) {
-        setLoading(true);
-        setLoadError(false);
-      }
-
-      try {
-        const [resWork, resImages] = await Promise.all([
-          fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}`),
-          fetch(`https://mk3hierros-production.up.railway.app/trabajo/${id}/images`),
-        ]);
-
-        if (!resWork.ok) {
-          throw new Error("No se pudo obtener el detalle del trabajo");
-        }
-        if (!resImages.ok) {
-          throw new Error("No se pudo obtener las imágenes del trabajo");
-        }
-
-        const [workData, imagesData] = await Promise.all([
-          resWork.json(),
-          resImages.json(),
-        ]);
-
-        const safeImages = Array.isArray(imagesData)
-          ? imagesData.map(toSafeImage).filter(Boolean)
-          : [];
-
-        const safeWork = {
-          ...workData,
-          images: Array.isArray(workData?.images)
-            ? workData.images.map(toSafeImage).filter(Boolean)
-            : undefined,
-        };
-
-        setWork(safeWork);
-        setImagesMetadata(safeImages);
-        setLoadError(false);
-
-        if (typeof window !== "undefined") {
-          try {
-            localStorage.setItem(
-              CACHE_KEY,
-              JSON.stringify({
-                timestamp: Date.now(),
-                work: safeWork,
-                images: safeImages,
-              })
-            );
-          } catch (storageError) {
-            if (
-              storageError instanceof DOMException &&
-              storageError.name === "QuotaExceededError"
-            ) {
-              console.warn(
-                "Cache de detalle excedió la cuota, se omitirá el almacenamiento.",
-                storageError
-              );
-              localStorage.removeItem(CACHE_KEY);
-            } else {
-              console.warn(
-                "No se pudo almacenar el cache de detalle",
-                storageError
-              );
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error cargando detalle:", error);
-        if (!cachedEntry) {
-          setWork(null);
-          setImagesMetadata([]);
-          setLoadError(true);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFullDetail();
+    setCurrentIndex(0);
   }, [id]);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) =>
-      prev === imagesMetadata.length - 1 ? 0 : prev + 1
-    );
-  };
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? imagesMetadata.length - 1 : prev - 1
-    );
-  };
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
 
-  if (loading) return <LoadingOverlay message="Cargando detalle del proyecto…" />;
-  if (loadError) {
+  useEffect(() => {
+    if (images.length < 2) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowRight") nextSlide();
+      if (event.key === "ArrowLeft") prevSlide();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [images.length, nextSlide, prevSlide]);
+
+  if (loading) {
     return (
-      <div className="detail-error">
-        No pudimos cargar el detalle del trabajo. Intenta nuevamente en unos
-        instantes.
+      <div className="mx-auto max-w-4xl px-[6vw] py-16">
+        <WorkDetailSkeleton />
       </div>
     );
   }
-  if (!work) return <div className="detail-error">Trabajo no encontrado</div>;
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl px-[6vw] py-16">
+        <EmptyState
+          title="No pudimos cargar el detalle del trabajo"
+          description="Intenta nuevamente en unos instantes."
+          actionLabel="Reintentar"
+          onAction={retry}
+        />
+      </div>
+    );
+  }
+
+  if (!work) {
+    return (
+      <div className="mx-auto max-w-4xl px-[6vw] py-16">
+        <EmptyState title="Trabajo no encontrado" icon={ImageOff} />
+      </div>
+    );
+  }
 
   return (
-    <main className="work-detail-page">
-      <div className="detail-nav">
-        <button className="back-nav" onClick={() => navigate(-1)}>
-          ← Volver
+    <main className="mx-auto flex max-w-4xl flex-col gap-8 px-[6vw] py-16">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm uppercase tracking-[2px] text-text-muted transition-colors hover:text-accent"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Volver
         </button>
-        <span className="detail-pill neon-pill">Proyecto destacado</span>
+        <span className="neon-pill">Proyecto destacado</span>
       </div>
 
-      <section className="detail-header glow-panel">
-        <h1>{work.title}</h1>
-        <p>{work.description}</p>
+      <section className="glow-panel p-8 sm:p-10">
+        <h1 className="text-2xl text-text-primary sm:text-3xl">{work.title}</h1>
+        {work.description && (
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            {work.description}
+          </p>
+        )}
       </section>
 
-      <section className="slider-shell glow-panel">
-        {imagesMetadata.length > 0 ? (
+      <section className="glow-panel relative flex items-center justify-center p-4 sm:p-6">
+        {images.length > 0 ? (
           <>
-            <button
-              className="arrow left"
-              onClick={prevSlide}
-              aria-label="Imagen anterior"
-            >
-              &#10094;
-            </button>
-            <div className="main-slide">
-              <div className="detail-image-frame">
-                <img
-                  src={`https://mk3hierros-production.up.railway.app/trabajo/${id}/images/${imagesMetadata[currentIndex].id}`}
-                  alt={`Proyecto ${currentIndex + 1}`}
-                  loading="lazy"
-                />
+            <Tooltip label="Imagen anterior">
+              <button
+                type="button"
+                onClick={prevSlide}
+                aria-label="Imagen anterior"
+                className="absolute left-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-panel-strong text-text-primary transition-colors hover:border-accent hover:text-accent"
+              >
+                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </Tooltip>
+
+            <div className="flex w-full flex-col items-center gap-4">
+              <div className="relative aspect-video w-full overflow-hidden rounded-[var(--radius-card)] bg-black/40">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={images[currentIndex].id}
+                    src={workImageUrl(id, images[currentIndex].id)}
+                    alt={`Proyecto ${currentIndex + 1}`}
+                    loading="lazy"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    drag={images.length > 1 ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.15}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x < -80) nextSlide();
+                      else if (info.offset.x > 80) prevSlide();
+                    }}
+                    className="h-full w-full cursor-grab object-contain active:cursor-grabbing"
+                  />
+                </AnimatePresence>
               </div>
-              <span className="counter">
-                {currentIndex + 1} / {imagesMetadata.length}
+              <span className="text-xs uppercase tracking-[2px] text-text-soft">
+                {currentIndex + 1} / {images.length}
               </span>
             </div>
-            <button
-              className="arrow right"
-              onClick={nextSlide}
-              aria-label="Imagen siguiente"
-            >
-              &#10095;
-            </button>
+
+            <Tooltip label="Imagen siguiente">
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Imagen siguiente"
+                className="absolute right-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-panel-strong text-text-primary transition-colors hover:border-accent hover:text-accent"
+              >
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </Tooltip>
           </>
         ) : (
-          <p className="slider-empty">
+          <p className="py-16 text-sm text-text-soft">
             No hay imágenes disponibles para este proyecto.
           </p>
         )}

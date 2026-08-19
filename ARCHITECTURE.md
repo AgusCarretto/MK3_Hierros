@@ -41,8 +41,8 @@ Responsibilities:
 
 Primary entry points:
 
-- `mk3_hierros_front/src/index.js`
-- `mk3_hierros_front/src/App.js`
+- `mk3_hierros_front/src/index.jsx`
+- `mk3_hierros_front/src/App.jsx`
 
 Key modules:
 
